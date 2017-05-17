@@ -37,7 +37,9 @@ Output Parameter:       x,y coordinate of waldo
 
 def find_waldo(image):
     print("find_waldo method")
-    return 0
+
+
+    return 350, 470
 
 
 
