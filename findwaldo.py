@@ -33,6 +33,7 @@ Output Parameter:       x,y coordinate of waldo
 ----------------------------------------------------------------------------------------------------*/
 """
 def find_waldo(image):
+
     # Compute Template Matching
     template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
 
@@ -40,11 +41,12 @@ def find_waldo(image):
     display_denisty_map(image, template_matched_image)
 
     # Find Maximum Value of intensity Map #
-    (_, _, minLoc, maxLoc) = cv2.minMaxLoc(template_matched_image)
+    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image)
 
     # Convert Coordinate Origin #
-    x_coordinate = maxLoc[0]
-    y_coordinate = maxLoc[1]
+    # (maybe not needed) #
+    x_coordinate = max_loc[0]
+    y_coordinate = image.shape[0] - max_loc[1]
 
     # return position of Waldo #
     return x_coordinate, y_coordinate
@@ -92,7 +94,7 @@ def template_matching(image, template_path):
     template = cv2.imread(template_path)
 
     # Compute Template Matching #
-    template_matched_image = cv2.matchTemplate(image, template, cv2.TM_CCOEFF)
+    template_matched_image = cv2.matchTemplate(image, template, method=cv2.TM_CCOEFF)
 
     # Return template matched picture #
     return template_matched_image
