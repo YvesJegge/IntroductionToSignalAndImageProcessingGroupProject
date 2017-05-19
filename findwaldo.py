@@ -17,29 +17,85 @@
 # Import Package #
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 from skimage import io
 from scipy import signal
-
 # Import Modul #
-
 """
 /*----------------------------------------------------------------------------------------------------
-Method: visualize_results()
+Method: find_waldo()
 ------------------------------------------------------------------------------------------------------
-This Method takes an image as input and returns the x,y coordinates of Waldo (x=0...width, y=0...height)
-were 0,0 is the bottom left corner of the image.
+This Method takes an image and try to find the position of Waldo in the Image
 ------------------------------------------------------------------------------------------------------
 Input  Parameter:       image as a input
 
 Output Parameter:       x,y coordinate of waldo
 ----------------------------------------------------------------------------------------------------*/
 """
-
 def find_waldo(image):
-    print("find_waldo method")
+    # Compute Template Matching
+    template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
 
+    # Only for Testing Intensity Map #
+    display_denisty_map(image, template_matched_image)
 
-    return 350, 470
+    # Find Maximum Value of intensity Map #
+    (_, _, minLoc, maxLoc) = cv2.minMaxLoc(template_matched_image)
+
+    # Convert Coordinate Origin #
+    x_coordinate = maxLoc[0]
+    y_coordinate = maxLoc[1]
+
+    # return position of Waldo #
+    return x_coordinate, y_coordinate
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: display_denisty_map()
+------------------------------------------------------------------------------------------------------
+This Method takes the original image and the denisty image and print int out
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       original_image, denisty_image
+
+Output Parameter:       None
+----------------------------------------------------------------------------------------------------*/
+"""
+def display_denisty_map(original_image, denisty_image):
+    # Plot Original Image  #
+    plt.figure(100)
+    plt.subplot(1, 2, 1)
+    plt.imshow(original_image)
+    plt.axis('on')
+    plt.title('Original Map')
+    # Plot Density Map #
+    plt.subplot(1, 2, 2)
+    plt.imshow(denisty_image)
+
+    plt.axis('on')
+    plt.title('Intensity Map')
+    plt.show
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: template_matching()
+------------------------------------------------------------------------------------------------------
+This Method runs a template matching algorithm throws the image
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input, template path
+
+Output Parameter:       Density image that is generated from the template matching
+----------------------------------------------------------------------------------------------------*/
+"""
+def template_matching(image, template_path):
+
+    # Read in Template Picture #
+    template = cv2.imread(template_path)
+
+    # Compute Template Matching #
+    template_matched_image = cv2.matchTemplate(image, template, cv2.TM_CCOEFF)
+
+    # Return template matched picture #
+    return template_matched_image
 
 
 

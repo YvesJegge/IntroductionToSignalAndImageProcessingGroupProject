@@ -34,7 +34,7 @@ This File wil control / test the group project Where is Waldo
 if __name__ == "__main__":
 
     # -- Set Parameter -- #
-    amountOfImages = 10
+    amountOfImages = 1
     showImages = True
     showSubplot = False
     showOnlyWrongPositions = False
