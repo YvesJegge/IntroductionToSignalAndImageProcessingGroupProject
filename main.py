@@ -19,6 +19,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from skimage import io
 from scipy import signal
+import matplotlib.patches as patches
+import cv2
 
 # Import Modul #
 import findwaldo as fw
@@ -34,10 +36,13 @@ This File wil control / test the group project Where is Waldo
 if __name__ == "__main__":
 
     # -- Set Parameter -- #
-    amountOfImages = 2
-    showImages = True
-    showSubplot = False
-    showOnlyWrongPositions = False
+    amountOfImages = 2                     # How many images should be tested (Do not exceed maximal number of images!)
+    showImages = True                      # True: Show images                                        False: Only calculation
+    showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
+    markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
+    showOnlyWrongPositionsImages = False   # True: Plot only images with wrong position calculation   False: Do not show true position
+    cutWaldoOut = False                    # True: Cut waldo out and save image in \data\waldo        False: Do not store waldo
+
     xMask = 20
     yMask = 40
 
@@ -71,9 +76,19 @@ if __name__ == "__main__":
         else:
             positionCorrect = False
 
+        # Find contour of solution #
+        ret,thresh = cv2.threshold(solution,0.5,1,cv2.THRESH_BINARY)
+        im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        x,y,w,h = cv2.boundingRect(contours[0])
+
+
+        # Cut waldo out and save this image #
+        if cutWaldoOut == True:
+            crop = img[y:y+h,x:x+w]
+            plt.imsave("data/waldo/" + str(ImageCount + 1) + "_waldo.jpg",crop)
 
         # Show images #
-        if (showImages == True) and ((showOnlyWrongPositions == False) or (positionCorrect == False)):
+        if (showImages == True) and ((showOnlyWrongPositionsImages == False) or (positionCorrect == False)):
 
             # Put images in subplot or separate figure #
             if showSubplot == True:
@@ -85,6 +100,12 @@ if __name__ == "__main__":
             mask = np.ones((img.shape[0], img.shape[1])).astype(np.uint8)
             mask[(img.shape[0]-y-yMask):(img.shape[0]-y+yMask), (x-xMask):(x+xMask)] = 0
             img -= (np.multiply(img, mask[:,:,None]) * 0.6).astype(np.uint8)
+
+
+            # Mark wally
+            if markTruePosition == True:
+                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+
             plt.imshow(img)
             plt.axis('off')
 
