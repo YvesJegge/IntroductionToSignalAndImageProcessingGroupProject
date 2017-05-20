@@ -36,7 +36,7 @@ This File wil control / test the group project Where is Waldo
 if __name__ == "__main__":
 
     # -- Set Parameter -- #
-    amountOfImages = 5                    # How many images should be tested (Do not exceed maximal number of images!)
+    amountOfImages = 3                    # How many images should be tested (Do not exceed maximal number of images!)
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo

@@ -124,6 +124,7 @@ def template_matching(image, template_path):
     # Set Settings for template Matching #
     canny_detection = True
     gray_picture = True
+    resizing = True
 
     # Read in Template Picture #
     template = cv2.imread(template_path)
@@ -143,27 +144,32 @@ def template_matching(image, template_path):
     best_max_val = None
 
     # -- Loop over the scales of the image -- #
-    for scale in np.linspace(20, 100, 10)[::-1]:
+    for scale in np.linspace(60, 100, 10)[::-1]:
 
         # Resize Image #
-        image_resided = misc.imresize(image, int(scale))
+        if resizing:
+            image_resized = misc.imresize(image, int(scale))
 
         # Check if Resized Image is smaller than Template #
-        if image_resided.shape[0] < template_hight or image_resided.shape[1] < template_width:
+        if image_resized.shape[0] < template_hight or image_resized.shape[1] < template_width:
             break
 
         # Edge detection for resized Image #
         if canny_detection:
-            image_resided = cv2.Canny(image_resided, threshold1=50, threshold2=200)
+            image_resized = cv2.Canny(image_resized, threshold1=50, threshold2=200)
 
         # Compute Template Matching #
-        matched_image = cv2.matchTemplate(image_resided, template, method=cv2.TM_CCOEFF)
+        matched_image = cv2.matchTemplate(image_resized, template, method=cv2.TM_CCOEFF)
         (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
         # Store best match #
         if best_max_val is None or max_val > best_max_val:
             best_max_val = max_val
             best_template_match = matched_image
+
+    # Resize best Match to Original Size #
+    if resizing:
+        best_template_match = misc.imresize(best_template_match, image.shape)
 
     # Normalize array to Value 0-255 #
     cv2.normalize(best_template_match, best_template_match, 0, 255, cv2.NORM_MINMAX)
