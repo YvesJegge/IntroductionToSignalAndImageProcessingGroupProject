@@ -40,20 +40,20 @@ def find_waldo(image):
 
     #color_matching(image)
 
-
     # Compute Template Matching
-    #template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
-
+    template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
 
     # Only for Testing Intensity Map #
     #display_denisty_map(image, template_matched_image)
 
 
     # Find Maximum Value of intensity Map #
-    #(min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image)
+    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image)
 
-    x_coordinate = 10
-    y_coordinate = 10
+    # Convert Coordinate Origin #
+    # (maybe not needed) #
+    x_coordinate = max_loc[0]
+    y_coordinate = image.shape[0] - max_loc[1]
 
     # return position of Waldo #
     return x_coordinate, y_coordinate
@@ -73,14 +73,8 @@ def color_matching(image):
     image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     image_filter = np.bitwise_and(np.bitwise_and(np.bitwise_or((image_hsv[:, :, 0] < 5), (image_hsv[:, :, 0] > 175)),(image_hsv[:, :, 1] > 128)),(image_hsv[:, :, 2] > 128))
 
-    # Convert Coordinate Origin #
-    # (maybe not needed) #
-    x_coordinate = max_loc[0]
-    y_coordinate = image.shape[0] - max_loc[1]
-
     print(np.min(image_hsv[:, :, 0]))
     print(np.max(image_hsv[:, :, 0]))
-
 
     plt.imshow(image_filter, cmap = "gray")
     plt.axis('off')
