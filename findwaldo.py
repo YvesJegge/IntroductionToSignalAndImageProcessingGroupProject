@@ -43,6 +43,10 @@ def find_waldo(image):
     # Compute Template Matching
     template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
 
+    # Compute keypoint_detection #
+    # (Maybe better than Template Matching, however not yet implemented) #
+    #template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
+
     # Only for Testing Intensity Map #
     #display_denisty_map(image, template_matched_image)
 
@@ -120,7 +124,6 @@ Output Parameter:       Density image that is generated from the template matchi
 ----------------------------------------------------------------------------------------------------*/
 """
 def template_matching(image, template_path):
-
     # Set Settings for template Matching #
     canny_detection = True
     gray_picture = True
@@ -176,6 +179,47 @@ def template_matching(image, template_path):
 
     # Return template matched picture #
     return best_template_match
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: keypoint_detection()
+------------------------------------------------------------------------------------------------------
+This Method runs a keypoint detection algorithm to match a template to a picture
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input, template path
+
+Output Parameter:       Density image that is generated from the template matching
+----------------------------------------------------------------------------------------------------*/
+"""
+def keypoint_detection(image, template_path):
+
+    # Set Settings for template Matching #
+    canny_detection = False
+    gray_picture = False
+
+    # Read in Template Picture #
+    template = cv2.imread(template_path)
+
+    # Convert Image and template to Gray-Scale #
+    if gray_picture:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+
+    # Edge detection for #
+    if canny_detection:
+        template = cv2.Canny(template, threshold1=50, threshold2=200)
+        image = cv2.Canny(image, threshold1=50, threshold2=200)
+
+    # Keypoin dedection Algorithm #
+    # To be implemented ... #
+    best_template_match = image
+
+    # Normalize array to Value 0-255 #
+    cv2.normalize(best_template_match, best_template_match, 0, 255, cv2.NORM_MINMAX)
+
+    # Return template matched picture #
+    return best_template_match
+
 
 
 
