@@ -125,7 +125,7 @@ Output Parameter:       Density image that is generated from the template matchi
 """
 def template_matching(image, template_path):
     # Set Settings for template Matching #
-    gray_picture = True
+    gray_picture = False
     canny_detection = False
 
     # Read in Template Picture #
