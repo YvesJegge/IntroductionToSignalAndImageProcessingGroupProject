@@ -44,7 +44,7 @@ def find_waldo(image):
     template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
 
     # Only for Testing Intensity Map #
-    #display_denisty_map(image, template_matched_image)
+    display_denisty_map(image, template_matched_image)
 
 
     # Find Maximum Value of intensity Map #
@@ -103,7 +103,7 @@ def display_denisty_map(original_image, denisty_image):
     plt.title('Original Map')
     # Plot Density Map #
     plt.subplot(1, 2, 2)
-    plt.imshow(denisty_image)
+    plt.imshow(denisty_image, cmap='gray')
 
     plt.axis('on')
     plt.title('Intensity Map')
@@ -126,10 +126,13 @@ def template_matching(image, template_path):
     template = cv2.imread(template_path)
 
     # Compute Template Matching #
-    template_matched_image = cv2.matchTemplate(image, template, method=cv2.TM_CCOEFF)
+    matched_image = cv2.matchTemplate(image, template, method=cv2.TM_CCOEFF_NORMED)
+
+    # Normalize array to Value 0-255 #
+    cv2.normalize(matched_image, matched_image, 0, 255, cv2.NORM_MINMAX)
 
     # Return template matched picture #
-    return template_matched_image
+    return matched_image
 
 
 
