@@ -125,9 +125,8 @@ Output Parameter:       Density image that is generated from the template matchi
 """
 def template_matching(image, template_path):
     # Set Settings for template Matching #
-    canny_detection = True
     gray_picture = True
-    resizing = True
+    canny_detection = False
 
     # Read in Template Picture #
     template = cv2.imread(template_path)
@@ -137,9 +136,21 @@ def template_matching(image, template_path):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
-    # Edge detection for Template #
-    if canny_detection:
-        template = cv2.Canny(template, threshold1=50, threshold2=200)
+        # Edge detection for Template #
+        if canny_detection:
+
+            # Compute for Canny edge dedection for image #
+            max_magnitude_image = np.median(image)
+            thr_high_image = 0.3 * max_magnitude_image
+            thr_low_image = thr_high_image / 2
+            image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
+
+            # Compute for Canny edge dedection for template #
+            max_magnitude_template = np.median(template)
+            thr_high_template = 0.2 * max_magnitude_template
+            thr_low_template = thr_high_template / 2
+            template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
+
 
     # Initialize used variable #
     best_template_match = image
@@ -147,19 +158,14 @@ def template_matching(image, template_path):
     best_max_val = None
 
     # -- Loop over the scales of the image -- #
-    for scale in np.linspace(60, 100, 10)[::-1]:
+    for scale in np.linspace(60, 140, 20)[::-1]:
 
         # Resize Image #
-        if resizing:
-            image_resized = misc.imresize(image, int(scale))
+        image_resized = misc.imresize(image, int(scale))
 
         # Check if Resized Image is smaller than Template #
         if image_resized.shape[0] < template_hight or image_resized.shape[1] < template_width:
             break
-
-        # Edge detection for resized Image #
-        if canny_detection:
-            image_resized = cv2.Canny(image_resized, threshold1=50, threshold2=200)
 
         # Compute Template Matching #
         matched_image = cv2.matchTemplate(image_resized, template, method=cv2.TM_CCOEFF)
@@ -171,8 +177,7 @@ def template_matching(image, template_path):
             best_template_match = matched_image
 
     # Resize best Match to Original Size #
-    if resizing:
-        best_template_match = misc.imresize(best_template_match, image.shape)
+    best_template_match = misc.imresize(best_template_match, image.shape)
 
     # Normalize array to Value 0-255 #
     cv2.normalize(best_template_match, best_template_match, 0, 255, cv2.NORM_MINMAX)
