@@ -79,12 +79,12 @@ if __name__ == "__main__":
         # Find contour of solution #
         ret,thresh = cv2.threshold(solution,0.5,1,cv2.THRESH_BINARY)
         im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        x,y,w,h = cv2.boundingRect(contours[0])
+        bx,by,bw,bh = cv2.boundingRect(contours[0])
 
 
         # Cut waldo out and save this image #
         if cutWaldoOut == True:
-            crop = img[y:y+h,x:x+w]
+            crop = img[by:by+bh,bx:bx+bw]
             plt.imsave("data/waldo/" + str(ImageCount + 1) + "_waldo.jpg",crop)
 
         # Show images #
@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
             # Mark wally
             if markTruePosition == True:
-                cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),3)
+                cv2.rectangle(img,(bx,by),(bx+bw,by+bh),(0,255,0),3)
 
             plt.imshow(img)
             plt.axis('off')
