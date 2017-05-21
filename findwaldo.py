@@ -39,6 +39,7 @@ Output Parameter:       x,y coordinate of waldo
 def find_waldo(image):
 
     #color_matching(image)
+    color_matched_image = color_matching(image)
 
     # Compute Template Matching
     template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
@@ -48,7 +49,7 @@ def find_waldo(image):
     #template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
 
     # Only for Testing Intensity Map #
-    #display_denisty_map(image, template_matched_image)
+    display_denisty_map(image, template_matched_image)
 
     # Find Maximum Value of intensity Map #
     (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image)
@@ -73,15 +74,106 @@ Output Parameter:       Give probability map back with the same size of original
 ----------------------------------------------------------------------------------------------------*/
 """
 def color_matching(image):
+
+    # Blurring image #
+    image = cv2.GaussianBlur(image,(9,3),0)
+
+    # Convert to hsv colorspace #
     image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    image_filter = np.bitwise_and(np.bitwise_and(np.bitwise_or((image_hsv[:, :, 0] < 5), (image_hsv[:, :, 0] > 175)),(image_hsv[:, :, 1] > 128)),(image_hsv[:, :, 2] > 128))
 
-    print(np.min(image_hsv[:, :, 0]))
-    print(np.max(image_hsv[:, :, 0]))
+    # Filter red #
+    rh = np.bitwise_or((image_hsv[:, :, 0] < 6), (image_hsv[:, :, 0] > 154))
+    rs = (image_hsv[:, :, 1] > 100)
+    rv = (image_hsv[:, :, 2] > 135)
+    red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
 
-    plt.imshow(image_filter, cmap = "gray")
-    plt.axis('off')
-    plt.show()
+    # Filter white #
+    wh = np.bitwise_or((image_hsv[:, :, 0] < 70), (image_hsv[:, :, 0] > 160))
+    ws = (image_hsv[:, :, 1] < 100)
+    wv = (image_hsv[:, :, 2] > 170)
+    white_filtered = np.uint8(np.bitwise_and(np.bitwise_and(wh, ws), wv))
+
+    # Filter pink #
+    ph = np.bitwise_or((image_hsv[:, :, 0] < 25), (image_hsv[:, :, 0] > 170))
+    ps = (image_hsv[:, :, 1] < 130)
+    pv = (image_hsv[:, :, 2] > 120)
+    pink_filtered = np.uint8(np.bitwise_and(np.bitwise_and(ph, ps), pv))
+
+    # Filter black #
+    black_filtered = np.uint8((image_hsv[:, :, 2] < 70))
+
+    # Kernels #
+    kernel_noise_small = np.ones((2,1))
+    kernel_noise_big = np.ones((3,3))
+    kernel_small = np.ones((3,1))
+    kernel_big = np.ones((9,6))
+
+    # Opening filters (remove noise) #
+    red_filtered = cv2.morphologyEx(red_filtered, cv2.MORPH_OPEN, kernel_noise_small)
+    pink_filtered = cv2.morphologyEx(pink_filtered, cv2.MORPH_OPEN, kernel_noise_big)
+    black_filtered = cv2.morphologyEx(black_filtered, cv2.MORPH_OPEN, kernel_noise_big)
+
+    # Dilate filters (make objects bigger) #
+    red_filtered = cv2.dilate(red_filtered, kernel_small, iterations=1)
+    white_filtered = cv2.dilate(white_filtered, kernel_small, iterations=2)
+    pink_filtered = cv2.dilate(pink_filtered, kernel_small, iterations=5)
+    black_filtered = cv2.dilate(black_filtered, kernel_small, iterations=1)
+
+    # Find overlaps #
+    strips_filtered = np.multiply(red_filtered, white_filtered)
+    hair_hut_filtered = np.multiply(red_filtered, black_filtered)
+    hair_face_filtered = np.multiply(pink_filtered, black_filtered)
+
+    # Dilate filters (make objects bigger) #
+    strips_filtered = cv2.dilate(strips_filtered, kernel_big, iterations=1)
+    hair_hut_filtered = cv2.dilate(hair_hut_filtered, kernel_big, iterations=1)
+    hair_face_filtered = cv2.dilate(hair_face_filtered, kernel_big, iterations=1)
+
+    # Find overlaps #
+    strips_hut_hair_filtered = np.multiply(strips_filtered, hair_hut_filtered)
+    hut_hair_face_filtered = np.multiply(hair_hut_filtered, hair_face_filtered)
+
+    # Dilate filters (make objects bigger) #
+    strips_hut_hair_filtered = cv2.dilate(strips_hut_hair_filtered, kernel_big, iterations=3)
+    hut_hair_face_filtered = cv2.dilate(hut_hair_face_filtered, kernel_big, iterations=3)
+
+    # Find overlaps #
+    color_filtered = np.multiply(strips_hut_hair_filtered, hut_hair_face_filtered)
+
+    #plt.figure(2)
+    #plt.subplot(2,2,1)
+    #plt.imshow(image[50:120, 1910:1940])
+    #plt.subplot(2,2,2)
+    #plt.imshow(strips_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,3)
+    #plt.imshow(hair_hut_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,4)
+    #plt.imshow(hair_face_filtered[50:120, 1910:1940])
+
+    #plt.figure(3)
+    #plt.subplot(2,2,1)
+    #plt.imshow(red_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,2)
+    #plt.imshow(white_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,3)
+    #plt.imshow(pink_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,4)
+    #plt.imshow(black_filtered[50:120, 1910:1940])
+
+
+    #plt.figure(4)
+    #plt.subplot(2,2,1)
+    #plt.imshow(strips_hut_hair_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,2)
+    #plt.imshow(hut_hair_face_filtered[50:120, 1910:1940])
+    #plt.subplot(2,2,3)
+    #plt.imshow(image[50:120, 1910:1940])
+    #plt.subplot(2,2,4)
+    #plt.imshow(color_filtered[50:120, 1910:1940])
+
+
+    return color_filtered
+
 
 
 
@@ -140,8 +232,8 @@ def template_matching(image, template_path):
 
     # Convert Image and template to Gray-Scale #
     if gray_picture:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        template = cv2.cvtColor(template, cv2.COLOR_RGB2GRAY)
 
     # Edge detection for Template #
     if canny_detection:
