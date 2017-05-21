@@ -41,12 +41,11 @@ def find_waldo(image):
     #color_matching(image)
     color_matched_image = color_matching(image)
 
+    # Compute keypoint_detection #
+    #circle_matched_image = circle_matching(image)
+
     # Compute Template Matching
     template_matched_image = template_matching(image, "data/templates/WaldoFace.jpg")
-
-    # Compute keypoint_detection #
-    # (Maybe better than Template Matching, however not yet implemented) #
-    #template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
 
     # Put all results together #
     matched_image = np.multiply(color_matched_image, template_matched_image)
@@ -58,7 +57,6 @@ def find_waldo(image):
     (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
     # Convert Coordinate Origin #
-    # (maybe not needed) #
     x_coordinate = max_loc[0]
     y_coordinate = image.shape[0] - max_loc[1]
 
@@ -286,6 +284,52 @@ def template_matching(image, template_path):
 
     # Return template matched picture #
     return best_template_match
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: circle_matching()
+------------------------------------------------------------------------------------------------------
+This Method search for circles in the image (for example for Head searching or for glasses searching)
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       Density image (0=no Circle, 255= Circle found)
+----------------------------------------------------------------------------------------------------*/
+"""
+def circle_matching(image):
+
+    # Settings for circle Matching #
+    show_circle = True
+
+    # Convert to Gray Image #
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    # Compute for Canny edge detection thresholds #
+    max_magnitude = np.median(image_gray)
+    thr_high = 0.2 * max_magnitude
+
+    # Finding Circles #
+    circles = cv2.HoughCircles(image_gray, cv2.HOUGH_GRADIENT, dp=1, minDist=1, param1=thr_high, param2=40, minRadius=2, maxRadius=8)
+
+    # Showing the Circles on the map #
+    if show_circle:
+        if circles is not None:
+            for i in circles[0, :]:
+                # Draw the outer circle #
+                cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 0), 2)
+                # Draw the center of the circle #
+                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
+        plt.imshow(image)
+        plt.show()
+
+    # Computing map circle Map #
+    circle_map = np.zeros(image_gray.shape)
+    if circles is not None:
+        for i in circles[0, :]:
+            cv2.circle(img=circle_map, center=(i[0], i[1]), radius=i[2], color=255, thickness=-2)
+
+    # Return circle map #
+    return circle_map
 
 
 
