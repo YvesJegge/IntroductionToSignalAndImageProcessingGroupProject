@@ -124,32 +124,37 @@ Output Parameter:       Density image that is generated from the template matchi
 ----------------------------------------------------------------------------------------------------*/
 """
 def template_matching(image, template_path):
-    # Set Settings for template Matching #
-    gray_picture = False
-    canny_detection = False
+
+    #-- Set Settings for template Matching-- #
+    gray_picture = True
+    canny_detection = True
+    blur_filter = True
 
     # Read in Template Picture #
     template = cv2.imread(template_path)
+
+    # Filtering the Image #
+    if blur_filter:
+        image = cv2.medianBlur(image, 5)
+        template =cv2.medianBlur(template, 5)
 
     # Convert Image and template to Gray-Scale #
     if gray_picture:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
 
-        # Edge detection for Template #
-        if canny_detection:
-
-            # Compute for Canny edge dedection for image #
-            max_magnitude_image = np.median(image)
-            thr_high_image = 0.3 * max_magnitude_image
-            thr_low_image = thr_high_image / 2
-            image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
-
-            # Compute for Canny edge dedection for template #
-            max_magnitude_template = np.median(template)
-            thr_high_template = 0.2 * max_magnitude_template
-            thr_low_template = thr_high_template / 2
-            template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
+    # Edge detection for Template #
+    if canny_detection:
+        # Compute for Canny edge dedection for image #
+        max_magnitude_image = np.median(image)
+        thr_high_image = 0.3 * max_magnitude_image
+        thr_low_image = thr_high_image / 2
+        image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
+        # Compute for Canny edge dedection for template #
+        max_magnitude_template = np.median(template)
+        thr_high_template = 0.2 * max_magnitude_template
+        thr_low_template = thr_high_template / 2
+        template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
 
 
     # Initialize used variable #
