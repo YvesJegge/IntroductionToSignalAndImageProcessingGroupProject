@@ -42,17 +42,20 @@ def find_waldo(image):
     color_matched_image = color_matching(image)
 
     # Compute Template Matching
-    template_matched_image = template_matching(image, "data/templates/WaldoSmall.jpeg")
+    template_matched_image = template_matching(image, "data/templates/WaldoFace.jpg")
 
     # Compute keypoint_detection #
     # (Maybe better than Template Matching, however not yet implemented) #
     #template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
 
+    # Put all results together #
+    matched_image = np.multiply(color_matched_image, template_matched_image)
+
     # Only for Testing Intensity Map #
-    display_denisty_map(image, template_matched_image)
+    display_denisty_map(image, matched_image)
 
     # Find Maximum Value of intensity Map #
-    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image)
+    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
     # Convert Coordinate Origin #
     # (maybe not needed) #
@@ -134,8 +137,8 @@ def color_matching(image):
     hut_hair_face_filtered = np.multiply(hair_hut_filtered, hair_face_filtered)
 
     # Dilate filters (make objects bigger) #
-    strips_hut_hair_filtered = cv2.dilate(strips_hut_hair_filtered, kernel_big, iterations=3)
-    hut_hair_face_filtered = cv2.dilate(hut_hair_face_filtered, kernel_big, iterations=3)
+    strips_hut_hair_filtered = cv2.dilate(strips_hut_hair_filtered, kernel_big, iterations=5)
+    hut_hair_face_filtered = cv2.dilate(hut_hair_face_filtered, kernel_big, iterations=5)
 
     # Find overlaps #
     color_filtered = np.multiply(strips_hut_hair_filtered, hut_hair_face_filtered)
@@ -171,6 +174,8 @@ def color_matching(image):
     #plt.subplot(2,2,4)
     #plt.imshow(color_filtered[50:120, 1910:1940])
 
+    # Normalize array to Value 0-255 #
+    cv2.normalize(color_filtered, color_filtered, 0, 255, cv2.NORM_MINMAX)
 
     return color_filtered
 
@@ -220,10 +225,10 @@ def template_matching(image, template_path):
     #-- Set Settings for template Matching-- #
     gray_picture = True
     canny_detection = True
-    blur_filter = True
+    blur_filter = False
 
     # Read in Template Picture #
-    template = cv2.imread(template_path)
+    template = plt.imread(template_path)
 
     # Filtering the Image #
     if blur_filter:
