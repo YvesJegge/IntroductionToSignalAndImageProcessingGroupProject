@@ -306,16 +306,33 @@ This algorithm need first a preprocessingof the picture
 ------------------------------------------------------------------------------------------------------
 Input  Parameter:       image as a input
 
-Output Parameter:       New Image (Near circle there is the original picture, other black)
+Output Parameter:       New Image (Near Line there is the original picture, other black)
 ----------------------------------------------------------------------------------------------------*/
 """
 def line_matching(image):
     # Settings for Line Matching #
-    show_circle_in_image = False
-
+    show_line = True
 
     # Convert to Gray Image #
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    # Compute Canny edges #
+    edges = cv2.Canny(image_gray, 50, 150, apertureSize=3)
+
+    # Finding Lines #
+    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=100, minLineLength=4, maxLineGap=2)
+
+    # Draw Lines
+    if lines is not None:
+        for x1, y1, x2, y2 in lines[0]:
+            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 1)
+
+    # Show filtered image  #
+    if show_line:
+        plt.figure(400)
+        plt.imshow(image)
+
+    # Finding Lines #
 
 """
 /*----------------------------------------------------------------------------------------------------
