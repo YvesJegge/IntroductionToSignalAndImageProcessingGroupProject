@@ -225,6 +225,56 @@ def remove_image_objects(img, min_size, max_size):
 
 """
 /*----------------------------------------------------------------------------------------------------
+Method: circle_matching()
+------------------------------------------------------------------------------------------------------
+This Method search for circles in the image (for searching or for glasses, hood, nose, eyes).
+This algorithm need first a preprocessingof the picture
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       New Image (Near circle there is the original picture, other black)
+----------------------------------------------------------------------------------------------------*/
+"""
+def circle_matching(image):
+
+    # Settings for circle Matching #
+    show_circle_in_image = True
+    show_filtered_image = True
+
+    # Convert to Gray Image #
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    # Finding Circles #
+    circles = cv2.HoughCircles(image_gray,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
+
+    # Filtering image (near a circle coping parts from original image)  #
+    filtered_image = np.zeros(image.shape)
+    if circles is not None:
+        for i in circles[0, :]:
+            cv2.circle(img=filtered_image, center=(i[0], i[1]), radius=i[2], color=255, thickness=-2)
+
+    # Showing the Circles in the original image #
+    if show_circle_in_image:
+        if circles is not None:
+            for i in circles[0, :]:
+                # Draw the outer circle #
+                cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 0), 2)
+                # Draw the center of the circle #
+                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
+        plt.figure(300)
+        plt.imshow(image)
+        plt.show()
+
+    # Show filtered image  #
+    if show_filtered_image:
+        plt.figure(301)
+        plt.imshow(filtered_image)
+        plt.show()
+
+    # Return circle map #
+    return filtered_image
+"""
+/*----------------------------------------------------------------------------------------------------
 Method: template_matching()
 ------------------------------------------------------------------------------------------------------
 This Method runs a template matching algorithm throws the image
@@ -301,49 +351,6 @@ def template_matching(image, template_path):
     # Return template matched picture #
     return best_template_match
 
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: circle_matching()
-------------------------------------------------------------------------------------------------------
-This Method search for circles in the image (for searching or for glasses, hood, nose, eyes).
-This algorithmen need first a preprosessing of the picture
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input
-
-Output Parameter:       New Image (Near circle there is the original picture, other black)
-----------------------------------------------------------------------------------------------------*/
-"""
-def circle_matching(image):
-
-    # Settings for circle Matching #
-    show_circle = False
-
-    # Convert to Gray Image #
-    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    # Finding Circles #
-    circles = cv2.HoughCircles(image_gray, cv2.HOUGH_GRADIENT, dp=1, minDist=4, param1=50, param2=13, minRadius=2, maxRadius=8)
-
-    # Showing the Circles on the map #
-    if show_circle:
-        if circles is not None:
-            for i in circles[0, :]:
-                # Draw the outer circle #
-                cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 0), 2)
-                # Draw the center of the circle #
-                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
-        plt.figure(300)
-        plt.imshow(image)
-        plt.show()
-
-    # Computing map circle Map #
-    circle_map = np.zeros(image_gray.shape)
-    if circles is not None:
-        for i in circles[0, :]:
-            cv2.circle(img=circle_map, center=(i[0], i[1]), radius=i[2], color=255, thickness=-2)
-
-    # Return circle map #
-    return circle_map
 
 
 
