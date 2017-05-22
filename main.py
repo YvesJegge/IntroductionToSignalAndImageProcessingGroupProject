@@ -36,7 +36,8 @@ This File wil control / test the group project Where is Waldo
 if __name__ == "__main__":
 
     # -- Set Parameter -- #
-    amountOfImages = 5                    # How many images should be tested (Do not exceed maximal number of images!)
+    startImage = 2                         # Start image
+    endImage = 2                           # End image (Do not exceed maximal number of images!)
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
@@ -46,6 +47,8 @@ if __name__ == "__main__":
     xMask = 20
     yMask = 40
 
+    amountOfImages = endImage - startImage + 1
+
     # -- Print Out Message -- #
     print("Start where is Waldo-program \n==============================\n")
 
@@ -53,7 +56,7 @@ if __name__ == "__main__":
     # -- Test function -- #
 
     amountCorrectPositions = 0
-    for ImageCount in range(amountOfImages):
+    for ImageCount in range(startImage-1, endImage):
 
         # Generate image paths #
         image_path = "data/images/" + str(ImageCount + 1) + ".jpg"
@@ -86,6 +89,9 @@ if __name__ == "__main__":
         if cutWaldoOut == True:
             crop = img[by:by+bh,bx:bx+bw]
             plt.imsave("data/waldo/" + str(ImageCount + 1) + "_waldo.jpg",crop)
+            #color_img = fw.color_matching(crop)
+            #if np.max(color_img) < 4:
+                #print(ImageCount + 1)
 
         # Show images #
         if (showImages == True) and ((showOnlyWrongPositionsImages == False) or (positionCorrect == False)):

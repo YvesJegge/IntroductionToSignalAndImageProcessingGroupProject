@@ -39,16 +39,22 @@ Output Parameter:       x,y coordinate of waldo
 def find_waldo(image):
 
     #color_matching(image)
-    color_matched_image = color_matching(image)
+    image = color_matching(image)
 
     # Compute keypoint_detection #
-    #circle_matched_image = circle_matching(image)
+    circle_matched_image = circle_matching(image)
 
     # Compute Template Matching
-    template_matched_image = template_matching(image, "data/templates/WaldoFace.jpg")
+    template_matched_image_face = template_matching(image, "data/templates/WaldoFace.jpg")
+    template_matched_image_glasses = template_matching(image, "data/templates/WaldoGlasses.jpg")
+
+    # Compute keypoint_detection #
+    # (Maybe better than Template Matching, however not yet implemented) #
+    # template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
 
     # Put all results together #
-    matched_image = np.multiply(color_matched_image, template_matched_image)
+    matched_image = np.uint16(template_matched_image_face) + np.uint16(template_matched_image_glasses)
+    print(np.max(matched_image))
 
     # Only for Testing Intensity Map #
     display_denisty_map(image, matched_image)
@@ -75,12 +81,14 @@ Output Parameter:       Give probability map back with the same size of original
 ----------------------------------------------------------------------------------------------------*/
 """
 def color_matching(image):
+    # Settings for color Matching #
+    show_color = False
 
     # Blurring image #
-    image = cv2.GaussianBlur(image,(9,3),0)
+    image_blurred = cv2.GaussianBlur(image,(5,3),0)
 
     # Convert to hsv colorspace #
-    image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    image_hsv = cv2.cvtColor(image_blurred, cv2.COLOR_RGB2HSV)
 
     # Filter red #
     rh = np.bitwise_or((image_hsv[:, :, 0] < 6), (image_hsv[:, :, 0] > 154))
@@ -101,81 +109,73 @@ def color_matching(image):
     pink_filtered = np.uint8(np.bitwise_and(np.bitwise_and(ph, ps), pv))
 
     # Filter black #
-    black_filtered = np.uint8((image_hsv[:, :, 2] < 70))
+    black_filtered = np.uint8((image_hsv[:, :, 2] < 95))
 
     # Kernels #
-    kernel_noise_small = np.ones((2,1))
-    kernel_noise_big = np.ones((3,3))
-    kernel_small = np.ones((3,1))
-    kernel_big = np.ones((9,6))
+    kernel_noise = np.ones((5,5))
+    kernel_small = np.ones((4,3))
+    kernel_big = np.ones((30,10))
 
-    # Opening filters (remove noise) #
-    red_filtered = cv2.morphologyEx(red_filtered, cv2.MORPH_OPEN, kernel_noise_small)
-    pink_filtered = cv2.morphologyEx(pink_filtered, cv2.MORPH_OPEN, kernel_noise_big)
-    black_filtered = cv2.morphologyEx(black_filtered, cv2.MORPH_OPEN, kernel_noise_big)
+    # Remove object with too small and too big size #
+    red_filtered = remove_image_objects(red_filtered, 10, 250)
+    white_filtered = remove_image_objects(white_filtered, 4, 60)
+    pink_filtered = remove_image_objects(pink_filtered, 15, 3000)
+    black_filtered = remove_image_objects(black_filtered, 12, 5200)
 
     # Dilate filters (make objects bigger) #
     red_filtered = cv2.dilate(red_filtered, kernel_small, iterations=1)
-    white_filtered = cv2.dilate(white_filtered, kernel_small, iterations=2)
-    pink_filtered = cv2.dilate(pink_filtered, kernel_small, iterations=5)
+    white_filtered = cv2.dilate(white_filtered, kernel_small, iterations=1)
+    pink_filtered = cv2.dilate(pink_filtered, kernel_small, iterations=1)
     black_filtered = cv2.dilate(black_filtered, kernel_small, iterations=1)
 
     # Find overlaps #
     strips_filtered = np.multiply(red_filtered, white_filtered)
     hair_hut_filtered = np.multiply(red_filtered, black_filtered)
     hair_face_filtered = np.multiply(pink_filtered, black_filtered)
+    strips_face_filtered = np.multiply(pink_filtered, strips_filtered)
 
     # Dilate filters (make objects bigger) #
     strips_filtered = cv2.dilate(strips_filtered, kernel_big, iterations=1)
     hair_hut_filtered = cv2.dilate(hair_hut_filtered, kernel_big, iterations=1)
     hair_face_filtered = cv2.dilate(hair_face_filtered, kernel_big, iterations=1)
+    strips_face_filtered = cv2.dilate(strips_face_filtered, kernel_big, iterations=1)
+
 
     # Find overlaps #
-    strips_hut_hair_filtered = np.multiply(strips_filtered, hair_hut_filtered)
-    hut_hair_face_filtered = np.multiply(hair_hut_filtered, hair_face_filtered)
+    color_filtered = strips_filtered + hair_hut_filtered + hair_face_filtered + strips_face_filtered
 
     # Dilate filters (make objects bigger) #
-    strips_hut_hair_filtered = cv2.dilate(strips_hut_hair_filtered, kernel_big, iterations=5)
-    hut_hair_face_filtered = cv2.dilate(hut_hair_face_filtered, kernel_big, iterations=5)
+    color_filtered = cv2.dilate(color_filtered, kernel_big, iterations=3)
 
-    # Find overlaps #
-    color_filtered = np.multiply(strips_hut_hair_filtered, hut_hair_face_filtered)
+    if show_color:
 
-    #plt.figure(2)
-    #plt.subplot(2,2,1)
-    #plt.imshow(image[50:120, 1910:1940])
-    #plt.subplot(2,2,2)
-    #plt.imshow(strips_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,3)
-    #plt.imshow(hair_hut_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,4)
-    #plt.imshow(hair_face_filtered[50:120, 1910:1940])
+        plt.figure(200)
+        plt.subplot(2,2,1)
+        plt.imshow(red_filtered)
+        plt.subplot(2,2,2)
+        plt.imshow(white_filtered)
+        plt.subplot(2,2,3)
+        plt.imshow(pink_filtered)
+        plt.subplot(2,2,4)
+        plt.imshow(black_filtered)
 
-    #plt.figure(3)
-    #plt.subplot(2,2,1)
-    #plt.imshow(red_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,2)
-    #plt.imshow(white_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,3)
-    #plt.imshow(pink_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,4)
-    #plt.imshow(black_filtered[50:120, 1910:1940])
+        plt.figure(201)
+        plt.subplot(2,2,1)
+        plt.imshow(strips_filtered)
+        plt.subplot(2,2,2)
+        plt.imshow(hair_hut_filtered)
+        plt.subplot(2,2,3)
+        plt.imshow(hair_face_filtered)
+        plt.subplot(2,2,4)
+        plt.imshow(strips_face_filtered)
 
-
-    #plt.figure(4)
-    #plt.subplot(2,2,1)
-    #plt.imshow(strips_hut_hair_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,2)
-    #plt.imshow(hut_hair_face_filtered[50:120, 1910:1940])
-    #plt.subplot(2,2,3)
-    #plt.imshow(image[50:120, 1910:1940])
-    #plt.subplot(2,2,4)
-    #plt.imshow(color_filtered[50:120, 1910:1940])
+    # Cut out only matched areas #
+    filtered_img = cv2.bitwise_and(image, image, mask = np.uint8(color_filtered > 3))
 
     # Normalize array to Value 0-255 #
-    cv2.normalize(color_filtered, color_filtered, 0, 255, cv2.NORM_MINMAX)
+    # cv2.normalize(color_filtered, color_filtered, 0, 255, cv2.NORM_MINMAX)
 
-    return color_filtered
+    return filtered_img
 
 
 
@@ -221,8 +221,8 @@ Output Parameter:       Density image that is generated from the template matchi
 def template_matching(image, template_path):
 
     #-- Set Settings for template Matching-- #
-    gray_picture = True
-    canny_detection = True
+    gray_picture = False
+    canny_detection = False
     blur_filter = False
 
     # Read in Template Picture #
@@ -305,7 +305,7 @@ def circle_matching(image):
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Compute for Canny edge detection thresholds #
-    max_magnitude = np.median(image_gray)
+    max_magnitude = np.average(image_gray) #ToDo: I took average, because median is 0, because there is a lot black in the image. Please set the threshold !!!
     thr_high = 0.2 * max_magnitude
 
     # Finding Circles #
@@ -331,6 +331,35 @@ def circle_matching(image):
     # Return circle map #
     return circle_map
 
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: remove_image_objects()
+------------------------------------------------------------------------------------------------------
+This Method deletes object which are too small or too big
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input, min size of objects, max size of objects
+
+Output Parameter:       image without object which are too small or too big
+----------------------------------------------------------------------------------------------------*/
+"""
+def remove_image_objects(img, min_size, max_size):
+    #find all your connected components (white blobs in your image)
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+
+
+    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
+    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+    sizes = stats[1:, -1]; nb_components = nb_components - 1
+
+    #your answer image
+    img2 = np.zeros((output.shape))
+    #for every component in the image, you keep it only if it's above min_size
+    for i in range(0, nb_components):
+        if (sizes[i] >= min_size) and (sizes[i] <= max_size):
+            img2[output == i + 1] = 1
+
+    return img2
 
 
 
