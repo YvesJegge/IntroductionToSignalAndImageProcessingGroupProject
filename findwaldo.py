@@ -38,11 +38,11 @@ Output Parameter:       x,y coordinate of waldo
 """
 def find_waldo(image):
 
-    #color_matching(image)
+    # Cut-Out Color Pattern #
     image = color_matching(image)
 
-    # Compute keypoint_detection #
-    #circle_matched_image = circle_matching(image)
+    # Searching for circle and cut out #
+    image = circle_matching(image)
 
     # Compute Template Matching
     template_matched_image_face = template_matching(image, "data/templates/WaldoSmall.jpeg")
@@ -212,7 +212,6 @@ def remove_image_objects(img, min_size, max_size):
     #find all your connected components (white blobs in your image)
     nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
 
-
     #connectedComponentswithStats yields every seperated component with information on each of them, such as size
     #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
     sizes = stats[1:, -1]; nb_components = nb_components - 1
@@ -238,8 +237,8 @@ Output Parameter:       New Image (Near circle there is the original picture, ot
 def circle_matching(image):
 
     # Settings for circle Matching #
-    show_circle_in_image = True
-    show_filtered_image = True
+    show_circle_in_image = False
+    show_filtered_image = False
     window_high = 50
     window_width = 50
 
@@ -310,7 +309,7 @@ def template_matching(image, template_path):
 
     #-- Set Settings for template Matching-- #
     gray_picture = True
-    canny_detection = False
+    canny_detection = True
     blur_filter = False
 
     # Read in Template Picture #
@@ -332,12 +331,12 @@ def template_matching(image, template_path):
         max_magnitude_image = np.median(image)
         thr_high_image = 0.3 * max_magnitude_image
         thr_low_image = thr_high_image / 2
-        image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
+        image = cv2.Canny(image, threshold1=50, threshold2=200)
         # Compute for Canny edge dedection for template #
         max_magnitude_template = np.median(template)
         thr_high_template = 0.2 * max_magnitude_template
         thr_low_template = thr_high_template / 2
-        template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
+        template = cv2.Canny(template, threshold1=50, threshold2=200)
 
 
     # Initialize used variable #
