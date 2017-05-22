@@ -352,14 +352,12 @@ def remove_image_objects(img, min_size, max_size):
     #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
     sizes = stats[1:, -1]; nb_components = nb_components - 1
 
-    #your answer image
-    img2 = np.zeros((output.shape))
     #for every component in the image, you keep it only if it's above min_size
-    for i in range(0, nb_components):
-        if (sizes[i] >= min_size) and (sizes[i] <= max_size):
-            img2[output == i + 1] = 1
+    area_size = sizes[output-1]
+    img2 = np.uint8(np.multiply((area_size >= min_size), (area_size <= max_size)))
 
     return img2
+
 
 
 
