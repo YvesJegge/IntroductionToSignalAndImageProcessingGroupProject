@@ -41,7 +41,10 @@ def find_waldo(image):
     # Cut-Out Color Pattern #
     image = color_matching(image)
 
-    # Searching for circle and cut out #
+    # Cut-Out not line-Patter #
+    #line_matching(image)
+
+    # Cut-Out not circle-Patter #
     image = circle_matching(image)
 
     # Compute Template Matching
@@ -294,6 +297,26 @@ def circle_matching(image):
 
     # Return circle map #
     return filtered_image
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: line_matching()
+------------------------------------------------------------------------------------------------------
+This Method search for lines in the image (for searching the typically Wally Pattern).
+This algorithm need first a preprocessingof the picture
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       New Image (Near circle there is the original picture, other black)
+----------------------------------------------------------------------------------------------------*/
+"""
+def line_matching(image):
+    # Settings for Line Matching #
+    show_circle_in_image = False
+
+
+    # Convert to Gray Image #
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
 """
 /*----------------------------------------------------------------------------------------------------
 Method: template_matching()
