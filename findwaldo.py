@@ -42,7 +42,7 @@ def find_waldo(image):
     image = color_matching(image)
 
     # Compute keypoint_detection #
-    circle_matched_image = circle_matching(image)
+    #circle_matched_image = circle_matching(image)
 
     # Compute Template Matching
     template_matched_image_face = template_matching(image, "data/templates/WaldoSmall.jpeg")
@@ -240,6 +240,8 @@ def circle_matching(image):
     # Settings for circle Matching #
     show_circle_in_image = True
     show_filtered_image = True
+    window_high = 50
+    window_width = 50
 
     # Convert to Gray Image #
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -248,10 +250,26 @@ def circle_matching(image):
     circles = cv2.HoughCircles(image_gray,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
 
     # Filtering image (near a circle coping parts from original image)  #
-    filtered_image = np.zeros(image.shape)
+    filtered_image = np.zeros(image.shape).astype(np.uint8)
     if circles is not None:
         for i in circles[0, :]:
-            cv2.circle(img=filtered_image, center=(i[0], i[1]), radius=i[2], color=255, thickness=-2)
+            # Compute start and stop Value of Window #
+            x_start = int(i[0] - (window_width/2))
+            x_stop = int(i[0] + (window_width/2))
+            y_start = int(i[1] - window_high/2)
+            y_stop = int(i[1] + window_high/2)
+            # Check for Array Boundary mismatch #
+            x_start = 0 if x_start < 0 else x_start
+            x_stop = image.shape[1] if x_stop > image.shape[1] else x_stop
+            y_start = 0 if y_start < 0 else y_start
+            y_stop = image.shape[0] if y_stop > image.shape[1] else y_stop
+            # Convert to int for Array Indexing #
+            x_start = int(x_start)
+            x_stop = int(x_stop)
+            y_start = int(y_start)
+            y_stop = int(y_stop)
+            # Copying part of the Image
+            filtered_image[y_start:y_stop, x_start:x_stop, :] = image[y_start:y_stop, x_start:x_stop, :]
 
     # Showing the Circles in the original image #
     if show_circle_in_image:
@@ -263,12 +281,16 @@ def circle_matching(image):
                 cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
         plt.figure(300)
         plt.imshow(image)
-        plt.show()
+        plt.title("Before Circle Filtering")
 
     # Show filtered image  #
     if show_filtered_image:
         plt.figure(301)
         plt.imshow(filtered_image)
+        plt.title("After Circle Filtering")
+
+    # Show both images at the same time
+    if show_circle_in_image or show_filtered_image:
         plt.show()
 
     # Return circle map #
