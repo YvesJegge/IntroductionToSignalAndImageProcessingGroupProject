@@ -82,12 +82,13 @@ if __name__ == "__main__":
             crop = img[by:by+bh,bx:bx+bw]
 
             # Test my function # ToDo: Insert your function here!
-            #filtered_img = fw.color_matching(crop)
+            filtered_img = fw.color_matching(crop)
             #filtered_img = fw.circle_matching(crop)
-            filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
+            #filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = fw.template_matching(crop, "data/templates/WaldoGlasses.jpg")
 
             # Plot results
+            plt.figure(400)
             plt.subplot(np.ceil(np.sqrt(amountOfImages)), np.ceil(np.sqrt(amountOfImages)), ImageCount + 1)
             plt.imshow(filtered_img)
             plt.title('Image: ' + np.str(ImageCount + 1))

@@ -111,35 +111,38 @@ def color_matching(image):
     image_hsv = cv2.cvtColor(image_blurred, cv2.COLOR_RGB2HSV)
 
     # Filter red #
-    rh = np.bitwise_or((image_hsv[:, :, 0] < 6), (image_hsv[:, :, 0] > 154))
+    rh = np.bitwise_or((image_hsv[:, :, 0] < 5), (image_hsv[:, :, 0] > 172))
     rs = (image_hsv[:, :, 1] > 100)
-    rv = (image_hsv[:, :, 2] > 135)
+    rv = (image_hsv[:, :, 2] > 140)
     red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
 
     # Filter white #
-    wh = np.bitwise_or((image_hsv[:, :, 0] < 70), (image_hsv[:, :, 0] > 160))
-    ws = (image_hsv[:, :, 1] < 100)
+    wh = np.bitwise_or((image_hsv[:, :, 0] < 65), (image_hsv[:, :, 0] > 165))
+    ws = (image_hsv[:, :, 1] < 90)
     wv = (image_hsv[:, :, 2] > 170)
     white_filtered = np.uint8(np.bitwise_and(np.bitwise_and(wh, ws), wv))
 
     # Filter pink #
-    ph = np.bitwise_or((image_hsv[:, :, 0] < 25), (image_hsv[:, :, 0] > 170))
-    ps = (image_hsv[:, :, 1] < 130)
-    pv = (image_hsv[:, :, 2] > 120)
+    ph = np.bitwise_or((image_hsv[:, :, 0] < 10), (image_hsv[:, :, 0] > 172))
+    ps = (image_hsv[:, :, 1] < 90)
+    pv = (image_hsv[:, :, 2] > 140)
     pink_filtered = np.uint8(np.bitwise_and(np.bitwise_and(ph, ps), pv))
 
     # Filter black #
-    black_filtered = np.uint8((image_hsv[:, :, 2] < 95))
+    black_filtered = np.uint8((image_hsv[:, :, 2] < 98))
 
     # Kernels #
-    kernel_noise = np.ones((5,5))
+    kernel_noise = np.ones((2,2))
     kernel_small = np.ones((4,3))
     kernel_big = np.ones((30,10))
 
+    # Remove small objects #
+    black_filtered = cv2.morphologyEx(black_filtered, cv2.MORPH_OPEN, kernel_noise)
+
     # Remove object with too small and too big size #
-    red_filtered = remove_image_objects(red_filtered, 10, 250)
-    white_filtered = remove_image_objects(white_filtered, 4, 60)
-    pink_filtered = remove_image_objects(pink_filtered, 15, 3000)
+    red_filtered = remove_image_objects(red_filtered, 10, 200)
+    white_filtered = remove_image_objects(white_filtered, 1, 300)
+    pink_filtered = remove_image_objects(pink_filtered, 5, 200)
     black_filtered = remove_image_objects(black_filtered, 12, 5200)
 
     # Dilate filters (make objects bigger) #
