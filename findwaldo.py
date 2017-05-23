@@ -48,16 +48,11 @@ def find_waldo(image):
     template_matched_image_face = template_matching(image, "data/templates/WaldoFace.jpg")
     template_matched_image_glasses = template_matching(image, "data/templates/WaldoGlasses.jpg")
 
-    # Compute keypoint_detection #
-    # (Maybe better than Template Matching, however not yet implemented) #
-    # template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
-
     # Put all results together #
     matched_image = np.uint16(template_matched_image_face) + np.uint16(template_matched_image_glasses)
-    print(np.max(matched_image))
 
     # Only for Testing Intensity Map #
-    display_denisty_map(image, matched_image)
+    #display_denisty_map(image, matched_image)
 
     # Find Maximum Value of intensity Map #
     (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
