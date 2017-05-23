@@ -37,8 +37,8 @@ if __name__ == "__main__":
 
     # -- Set Parameter -- #
     startImage = 1                      # Start image1
-    endImage = 1                           # End image (Do not exceed maximal number of images!)
-    testOnlyMyFunction = False              # True: Test only my given function                        False: Test findwaldo()
+    endImage = 23                           # End image (Do not exceed maximal number of images!)
+    testOnlyMyFunction = True              # True: Test only my given function                        False: Test findwaldo()
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
@@ -83,8 +83,8 @@ if __name__ == "__main__":
 
             # Test my function # ToDo: Insert your function here!
             #filtered_img = fw.color_matching(crop)
-            filtered_img = fw.circle_matching(crop)
-            #filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
+            #filtered_img = fw.circle_matching(crop)
+            filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = fw.template_matching(crop, "data/templates/WaldoGlasses.jpg")
 
             # Plot results

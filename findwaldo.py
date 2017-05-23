@@ -345,17 +345,11 @@ Output Parameter:       Density image that is generated from the template matchi
 def template_matching(image, template_path):
 
     #-- Set Settings for template Matching-- #
-    gray_picture = False
+    gray_picture = True
     canny_detection = False
-    blur_filter = False
 
     # Read in Template Picture #
     template = plt.imread(template_path)
-
-    # Filtering the Image #
-    if blur_filter:
-        image = cv2.medianBlur(image, 5)
-        template =cv2.medianBlur(template, 5)
 
     # Convert Image and template to Gray-Scale #
     if gray_picture:
@@ -374,7 +368,6 @@ def template_matching(image, template_path):
         thr_high_template = 0.2 * max_magnitude_template
         thr_low_template = thr_high_template / 2
         template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
-
 
     # Initialize used variable #
     best_template_match = image
