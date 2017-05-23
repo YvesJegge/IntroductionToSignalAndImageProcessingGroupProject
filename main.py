@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     # -- Set Parameter -- #
     startImage = 1                      # Start image1
-    endImage = 23                           # End image (Do not exceed maximal number of images!)
+    endImage = 20                           # End image (Do not exceed maximal number of images!)
+    testOnlyMyFunction = True              # True: Test only my given function                        False: Test findwaldo()
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
@@ -68,62 +69,87 @@ if __name__ == "__main__":
         # Import solution #
         solution = plt.imread(solution_path).astype(np.uint8)
 
-        # Call function to test #
-        x,y = fw.find_waldo(img)
-
-        # Check position #
-        if solution[img.shape[0]-y, x] > 0:
-            positionCorrect = True
-            amountCorrectPositions += 1
-
-        else:
-            positionCorrect = False
-
         # Find contour of solution #
         ret,thresh = cv2.threshold(solution,0.5,1,cv2.THRESH_BINARY)
         im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         bx,by,bw,bh = cv2.boundingRect(contours[0])
 
-
-        # Cut waldo out and save this image #
-        if cutWaldoOut == True:
+        if testOnlyMyFunction:
+        ###########################################################################
+        # Test only my function()
+        ###########################################################################
+            # Cut out waldo
             crop = img[by:by+bh,bx:bx+bw]
-            plt.imsave("data/waldo/" + str(ImageCount + 1) + "_waldo.jpg",crop)
-            #color_img = fw.color_matching(crop)
-            #if np.max(color_img) < 4:
-                #print(ImageCount + 1)
 
-        # Show images #
-        if (showImages == True) and ((showOnlyWrongPositionsImages == False) or (positionCorrect == False)):
+            # Test my function # ToDo: Insert your function here!
+            filtered_img = fw.color_matching(crop)
+            #filtered_img = fw.circle_matching(crop)
+            #filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
+            #filtered_img = fw.template_matching(crop, "data/templates/WaldoGlasses.jpg")
 
-            # Put images in subplot or separate figure #
-            if showSubplot == True:
-                plt.subplot(np.ceil(np.sqrt(amountOfImages)), np.ceil(np.sqrt(amountOfImages)), ImageCount + 1)
+            # Plot results
+            plt.subplot(np.ceil(np.sqrt(amountOfImages)), np.ceil(np.sqrt(amountOfImages)), ImageCount + 1)
+            plt.imshow(filtered_img)
+            plt.title('Image: ' + np.str(ImageCount + 1))
+
+            # Status
+            print('Image: ' + np.str(ImageCount + 1))
+
+
+        else:
+        ###########################################################################
+        # Test findwaldo()
+        ###########################################################################
+            # Call function to test #
+            x,y = fw.find_waldo(img)
+
+            # Check position #
+            if solution[img.shape[0]-y, x] > 0:
+                positionCorrect = True
+                amountCorrectPositions += 1
+
             else:
-                plt.figure(ImageCount + 1)
-
-            # Show image #
-            mask = np.ones((img.shape[0], img.shape[1])).astype(np.uint8)
-            mask[(img.shape[0]-y-yMask):(img.shape[0]-y+yMask), (x-xMask):(x+xMask)] = 0
-            img -= (np.multiply(img, mask[:,:,None]) * 0.6).astype(np.uint8)
+                positionCorrect = False
 
 
-            # Mark wally
-            if markTruePosition == True:
-                cv2.rectangle(img,(bx,by),(bx+bw,by+bh),(0,255,0),3)
+            # Cut waldo out and save this image #
+            if cutWaldoOut == True:
+                crop = img[by:by+bh,bx:bx+bw]
+                plt.imsave("data/waldo/" + str(ImageCount + 1) + "_waldo.jpg",crop)
 
-            plt.imshow(img)
-            plt.axis('off')
 
-            # Set title of image #
-            if positionCorrect == True:
-                plt.title('Image: ' + np.str(ImageCount + 1) + '  Correct')
-            else:
-                plt.title('Image: ' + np.str(ImageCount + 1) + '  Wrong')
+            # Show images #
+            if (showImages == True) and ((showOnlyWrongPositionsImages == False) or (positionCorrect == False)):
+
+                # Put images in subplot or separate figure #
+                if showSubplot == True:
+                    plt.subplot(np.ceil(np.sqrt(amountOfImages)), np.ceil(np.sqrt(amountOfImages)), ImageCount + 1)
+                else:
+                    plt.figure(ImageCount + 1)
+
+                # Show image #
+                mask = np.ones((img.shape[0], img.shape[1])).astype(np.uint8)
+                mask[(img.shape[0]-y-yMask):(img.shape[0]-y+yMask), (x-xMask):(x+xMask)] = 0
+                img -= (np.multiply(img, mask[:,:,None]) * 0.6).astype(np.uint8)
+
+
+                # Mark wally
+                if markTruePosition == True:
+                    cv2.rectangle(img,(bx,by),(bx+bw,by+bh),(0,255,0),3)
+
+                plt.imshow(img)
+                plt.axis('off')
+
+                # Set title of image #
+                if positionCorrect == True:
+                    plt.title('Image: ' + np.str(ImageCount + 1) + '  Correct')
+                else:
+                    plt.title('Image: ' + np.str(ImageCount + 1) + '  Wrong')
 
 
 
     # -- Show results -- #
-    print("\n\nResults \n==============================\n")
-    print(np.str(np.round(amountCorrectPositions / amountOfImages * 100)) + "% of positions are correct")
+    if testOnlyMyFunction == False:
+        print("\n\nResults \n==============================\n")
+        print(np.str(np.round(amountCorrectPositions / amountOfImages * 100)) + "% of positions are correct")
     plt.show()

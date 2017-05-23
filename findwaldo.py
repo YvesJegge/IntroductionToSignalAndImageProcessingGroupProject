@@ -38,27 +38,29 @@ Output Parameter:       x,y coordinate of waldo
 """
 def find_waldo(image):
 
-    # Cut-Out Color Pattern #
+    #color_matching(image)
     image = color_matching(image)
 
-    # Cut-Out not line-Patter #
-    #line_matching(image)
-
-    # Cut-Out not circle-Patter #
-    image = circle_matching(image)
+    # Compute keypoint_detection #
+    circle_matched_image = circle_matching(image)
 
     # Compute Template Matching
-    template_matched_image_face = template_matching(image, "data/templates/WaldoSmall.jpeg")
-    #template_matched_image_glasses = template_matching(image, "data/templates/WaldoGlasses.jpg")
+    template_matched_image_face = template_matching(image, "data/templates/WaldoFace.jpg")
+    template_matched_image_glasses = template_matching(image, "data/templates/WaldoGlasses.jpg")
+
+    # Compute keypoint_detection #
+    # (Maybe better than Template Matching, however not yet implemented) #
+    # template_matched_image = keypoint_detection(image, "data/templates/WaldoSmall.jpeg")
 
     # Put all results together #
-    #matched_image = np.uint16(template_matched_image_face) + np.uint16(template_matched_image_glasses)
+    matched_image = np.uint16(template_matched_image_face) + np.uint16(template_matched_image_glasses)
+    print(np.max(matched_image))
 
     # Only for Testing Intensity Map #
-    #display_denisty_map(image, matched_image)
+    display_denisty_map(image, matched_image)
 
     # Find Maximum Value of intensity Map #
-    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(template_matched_image_face)
+    (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
     # Convert Coordinate Origin #
     x_coordinate = max_loc[0]
@@ -66,32 +68,6 @@ def find_waldo(image):
 
     # return position of Waldo #
     return x_coordinate, y_coordinate
-
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: display_denisty_map()
-------------------------------------------------------------------------------------------------------
-This Method takes the original image and the denisty image and print int out
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       original_image, denisty_image
-
-Output Parameter:       None
-----------------------------------------------------------------------------------------------------*/
-"""
-def display_denisty_map(original_image, denisty_image):
-    # Plot Original Image  #
-    plt.figure(100)
-    plt.subplot(1, 2, 1)
-    plt.imshow(original_image)
-    plt.axis('on')
-    plt.title('Original Map')
-    # Plot Density Map #
-    plt.subplot(1, 2, 2)
-    plt.imshow(denisty_image, cmap='gray')
-
-    plt.axis('on')
-    plt.title('Intensity Map')
-    plt.show
 
 """
 /*----------------------------------------------------------------------------------------------------
@@ -200,139 +176,36 @@ def color_matching(image):
     # cv2.normalize(color_filtered, color_filtered, 0, 255, cv2.NORM_MINMAX)
 
     return filtered_img
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: remove_image_objects()
-------------------------------------------------------------------------------------------------------
-This Method deletes object which are too small or too big
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input, min size of objects, max size of objects
 
-Output Parameter:       image without object which are too small or too big
-----------------------------------------------------------------------------------------------------*/
-"""
-def remove_image_objects(img, min_size, max_size):
-    #find all your connected components (white blobs in your image)
-    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
 
-    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
-    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
-    sizes = stats[1:, -1]; nb_components = nb_components - 1
 
-    #for every component in the image, you keep it only if it's above min_size
-    area_size = sizes[output-1]
-    img2 = np.uint8(np.multiply((area_size >= min_size), (area_size <= max_size)))
 
-    return img2
 
 """
 /*----------------------------------------------------------------------------------------------------
-Method: circle_matching()
+Method: display_denisty_map()
 ------------------------------------------------------------------------------------------------------
-This Method search for circles in the image (for searching or for glasses, hood, nose, eyes).
-This algorithm need first a preprocessingof the picture
+This Method takes the original image and the denisty image and print int out
 ------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input
+Input  Parameter:       original_image, denisty_image
 
-Output Parameter:       New Image (Near circle there is the original picture, other black)
+Output Parameter:       None
 ----------------------------------------------------------------------------------------------------*/
 """
-def circle_matching(image):
+def display_denisty_map(original_image, denisty_image):
+    # Plot Original Image  #
+    plt.figure(100)
+    plt.subplot(1, 2, 1)
+    plt.imshow(original_image)
+    plt.axis('on')
+    plt.title('Original Map')
+    # Plot Density Map #
+    plt.subplot(1, 2, 2)
+    plt.imshow(denisty_image, cmap='gray')
 
-    # Settings for circle Matching #
-    show_circle_in_image = False
-    show_filtered_image = False
-    window_high = 50
-    window_width = 50
-
-    # Convert to Gray Image #
-    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    # Finding Circles #
-    circles = cv2.HoughCircles(image_gray,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
-
-    # Filtering image (near a circle coping parts from original image)  #
-    filtered_image = np.zeros(image.shape).astype(np.uint8)
-    if circles is not None:
-        for i in circles[0, :]:
-            # Compute start and stop Value of Window #
-            x_start = int(i[0] - (window_width/2))
-            x_stop = int(i[0] + (window_width/2))
-            y_start = int(i[1] - window_high/2)
-            y_stop = int(i[1] + window_high/2)
-            # Check for Array Boundary mismatch #
-            x_start = 0 if x_start < 0 else x_start
-            x_stop = image.shape[1] if x_stop > image.shape[1] else x_stop
-            y_start = 0 if y_start < 0 else y_start
-            y_stop = image.shape[0] if y_stop > image.shape[1] else y_stop
-            # Convert to int for Array Indexing #
-            x_start = int(x_start)
-            x_stop = int(x_stop)
-            y_start = int(y_start)
-            y_stop = int(y_stop)
-            # Copying part of the Image
-            filtered_image[y_start:y_stop, x_start:x_stop, :] = image[y_start:y_stop, x_start:x_stop, :]
-
-    # Showing the Circles in the original image #
-    if show_circle_in_image:
-        if circles is not None:
-            for i in circles[0, :]:
-                # Draw the outer circle #
-                cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 0), 2)
-                # Draw the center of the circle #
-                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
-        plt.figure(300)
-        plt.imshow(image)
-        plt.title("Before Circle Filtering")
-
-    # Show filtered image  #
-    if show_filtered_image:
-        plt.figure(301)
-        plt.imshow(filtered_image)
-        plt.title("After Circle Filtering")
-
-    # Show both images at the same time
-    if show_circle_in_image or show_filtered_image:
-        plt.show()
-
-    # Return circle map #
-    return filtered_image
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: line_matching()
-------------------------------------------------------------------------------------------------------
-This Method search for lines in the image (for searching the typically Wally Pattern).
-This algorithm need first a preprocessingof the picture
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input
-
-Output Parameter:       New Image (Near Line there is the original picture, other black)
-----------------------------------------------------------------------------------------------------*/
-"""
-def line_matching(image):
-    # Settings for Line Matching #
-    show_line = True
-
-    # Convert to Gray Image #
-    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    # Compute Canny edges #
-    edges = cv2.Canny(image_gray, 50, 150, apertureSize=3)
-
-    # Finding Lines #
-    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=100, minLineLength=4, maxLineGap=2)
-
-    # Draw Lines
-    if lines is not None:
-        for x1, y1, x2, y2 in lines[0]:
-            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 1)
-
-    # Show filtered image  #
-    if show_line:
-        plt.figure(400)
-        plt.imshow(image)
-
-    # Finding Lines #
+    plt.axis('on')
+    plt.title('Intensity Map')
+    plt.show
 
 """
 /*----------------------------------------------------------------------------------------------------
@@ -348,8 +221,8 @@ Output Parameter:       Density image that is generated from the template matchi
 def template_matching(image, template_path):
 
     #-- Set Settings for template Matching-- #
-    gray_picture = True
-    canny_detection = True
+    gray_picture = False
+    canny_detection = False
     blur_filter = False
 
     # Read in Template Picture #
@@ -371,12 +244,12 @@ def template_matching(image, template_path):
         max_magnitude_image = np.median(image)
         thr_high_image = 0.3 * max_magnitude_image
         thr_low_image = thr_high_image / 2
-        image = cv2.Canny(image, threshold1=50, threshold2=200)
+        image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
         # Compute for Canny edge dedection for template #
         max_magnitude_template = np.median(template)
         thr_high_template = 0.2 * max_magnitude_template
         thr_low_template = thr_high_template / 2
-        template = cv2.Canny(template, threshold1=50, threshold2=200)
+        template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
 
 
     # Initialize used variable #
@@ -412,7 +285,78 @@ def template_matching(image, template_path):
     # Return template matched picture #
     return best_template_match
 
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: circle_matching()
+------------------------------------------------------------------------------------------------------
+This Method search for circles in the image (for example for Head searching or for glasses searching)
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
 
+Output Parameter:       Density image (0=no Circle, 255= Circle found)
+----------------------------------------------------------------------------------------------------*/
+"""
+def circle_matching(image):
+
+    # Settings for circle Matching #
+    show_circle = True
+
+    # Convert to Gray Image #
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+
+    # Compute for Canny edge detection thresholds #
+    max_magnitude = np.average(image_gray) #ToDo: I took average, because median is 0, because there is a lot black in the image. Please set the threshold !!!
+    thr_high = 0.2 * max_magnitude
+
+    # Finding Circles #
+    circles = cv2.HoughCircles(image_gray, cv2.HOUGH_GRADIENT, dp=1, minDist=1, param1=thr_high, param2=40, minRadius=2, maxRadius=8)
+
+    # Showing the Circles on the map #
+    if show_circle:
+        if circles is not None:
+            for i in circles[0, :]:
+                # Draw the outer circle #
+                cv2.circle(image, (i[0], i[1]), i[2], (0, 0, 0), 2)
+                # Draw the center of the circle #
+                cv2.circle(image, (i[0], i[1]), 2, (255, 0, 0), 1)
+        plt.imshow(image)
+        plt.show()
+
+    # Computing map circle Map #
+    circle_map = np.zeros(image_gray.shape)
+    if circles is not None:
+        for i in circles[0, :]:
+            cv2.circle(img=circle_map, center=(i[0], i[1]), radius=i[2], color=255, thickness=-2)
+
+    # Return circle map #
+    return circle_map
+
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: remove_image_objects()
+------------------------------------------------------------------------------------------------------
+This Method deletes object which are too small or too big
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input, min size of objects, max size of objects
+
+Output Parameter:       image without object which are too small or too big
+----------------------------------------------------------------------------------------------------*/
+"""
+def remove_image_objects(img, min_size, max_size):
+    #find all your connected components (white blobs in your image)
+    nb_components, output, stats, centroids = cv2.connectedComponentsWithStats(img, connectivity=8)
+
+
+    #connectedComponentswithStats yields every seperated component with information on each of them, such as size
+    #the following part is just taking out the background which is also considered a component, but most of the time we don't want that.
+    sizes = stats[1:, -1]; nb_components = nb_components - 1
+
+    #for every component in the image, you keep it only if it's above min_size
+    area_size = sizes[output-1]
+    img2 = np.uint8(np.multiply((area_size >= min_size), (area_size <= max_size)))
+
+    return img2
 
 
 
