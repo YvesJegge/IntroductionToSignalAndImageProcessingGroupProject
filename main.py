@@ -24,6 +24,9 @@ import cv2
 
 # Import Modul #
 import findwaldo as fw
+import ColorMatching as cm
+import TemplateMatching as tm
+import ShapeMatching as sm
 
 
 """
@@ -82,10 +85,10 @@ if __name__ == "__main__":
             crop = img[by:by+bh,bx:bx+bw]
 
             # Test my function # ToDo: Insert your function here!
-            filtered_img = fw.color_matching(crop)
-            #filtered_img = fw.circle_matching(crop)
-            #filtered_img = fw.template_matching(crop, "data/templates/WaldoFace.jpg")
-            #filtered_img = fw.template_matching(crop, "data/templates/WaldoGlasses.jpg")
+            filtered_img = cm.color_matching(crop)
+            #filtered_img = sm.circle_matching(crop)
+            #filtered_img = tm.template_matching(crop, "data/templates/WaldoFace.jpg")
+            #filtered_img = tm.template_matching(crop, "data/templates/WaldoGlasses.jpg")
 
             # Plot results
             plt.figure(400)
