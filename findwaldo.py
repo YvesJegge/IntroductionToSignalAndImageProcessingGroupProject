@@ -42,14 +42,17 @@ def find_waldo(image):
     image = color_matching(image)
 
     # Compute keypoint_detection #
-    circle_matched_image = circle_matching(image)
+    image = circle_matching(image)
 
     # Compute Template Matching
-    template_matched_image_face = template_matching(image, "data/templates/WaldoFace.jpg")
+    #template_matched_image_Hair = template_matching(image, "data/templates/Hair.jpg")
     template_matched_image_glasses = template_matching(image, "data/templates/WaldoGlasses.jpg")
 
     # Put all results together #
-    matched_image = np.uint16(template_matched_image_face) + np.uint16(template_matched_image_glasses)
+    matched_image = np.uint16(template_matched_image_glasses)# + template_matched_image_Hair)
+
+    # Blur dentisty
+    matched_image = cv2.GaussianBlur(matched_image,(21,21),0)
 
     # Only for Testing Intensity Map #
     #display_denisty_map(image, matched_image)
@@ -240,8 +243,8 @@ Output Parameter:       New Image (Near circle there is the original picture, ot
 def circle_matching(image):
 
     # Settings for circle Matching #
-    show_circle_in_image = True
-    show_filtered_image = True
+    show_circle_in_image = False
+    show_filtered_image = False
     window_high = 50
     window_width = 50
 
