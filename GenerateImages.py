@@ -92,8 +92,8 @@ if __name__ == "__main__":
 
             # Cut waldo out and save this image #
             crop = image[yy:yy+yMask,xx:xx+xMask]
-            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".jpg" , crop, cmap='gray')
-            f.write("neg/"+ str(ImageCount * amountOfCutsPerImage + i + 1) + ".jpg"+"\n")
+            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".png" , crop, cmap='gray')
+            f.write("neg/"+ str(ImageCount * amountOfCutsPerImage + i + 1) + ".png"+"\n")
 
 
         # Status
