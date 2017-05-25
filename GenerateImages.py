@@ -49,6 +49,8 @@ if __name__ == "__main__":
     # -- Print Out Message -- #
     print("Generate images \n==============================\n")
 
+    # Generating Text File #
+    f = open('data/templates/background/bg.txt', 'w')
 
 
     for ImageCount in range(startImage-1, endImage):
@@ -56,6 +58,8 @@ if __name__ == "__main__":
         # Generate image paths #
         image_path = "data/images/" + str(ImageCount + 1) + ".jpg"
         solution_path = "data/ground_truths/" + str(ImageCount + 1) + ".png"
+
+
 
         # Import image #
         img = plt.imread(image_path).astype(np.uint8)
@@ -67,6 +71,7 @@ if __name__ == "__main__":
 
         # Import solution #
         solution = plt.imread(solution_path).astype(np.uint8)
+
 
         # Find contour of solution #
         ret,thresh = cv2.threshold(solution,0.5,1,cv2.THRESH_BINARY)
@@ -87,7 +92,12 @@ if __name__ == "__main__":
 
             # Cut waldo out and save this image #
             crop = image[yy:yy+yMask,xx:xx+xMask]
-            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".jpg", crop, cmap='gray')
+            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".jpg" , crop, cmap='gray')
+            f.write("neg/"+ str(ImageCount * amountOfCutsPerImage + i + 1) + ".jpg"+"\n")
+
 
         # Status
         print('Image: ' + np.str(ImageCount + 1))
+
+    # Close File
+    f.close()
