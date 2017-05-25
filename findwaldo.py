@@ -44,14 +44,15 @@ def find_waldo(image):
     image = cm.color_matching(image)
 
     # Compute keypoint_detection #
-    image = sm.circle_matching(image)
+    #image = sm.circle_matching(image)
 
     # Compute Template Matching
     #template_matched_image_Hair = tm.template_matching(image, "data/templates/Hair.jpg")
     template_matched_image_glasses = tm.template_matching(image, "data/templates/WaldoGlasses.jpg")
+    template_matched_image_shirt = sm.shirt_cap_matching(image)
 
     # Put all results together #
-    matched_image = np.uint16(template_matched_image_glasses)# + template_matched_image_Hair)
+    matched_image = np.uint16(template_matched_image_glasses + template_matched_image_shirt)
 
     # Blur dentisty
     matched_image = cv2.GaussianBlur(matched_image,(21,21),0)

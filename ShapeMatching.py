@@ -24,6 +24,7 @@ from scipy import signal, misc
 import cv2
 
 # Import Modul #
+import ColorMatching as cm
 
 """
 /*----------------------------------------------------------------------------------------------------
@@ -40,16 +41,30 @@ Output Parameter:       New Image (Near circle there is the original picture, ot
 def circle_matching(image):
 
     # Settings for circle Matching #
-    show_circle_in_image = False
+    show_circle_in_image = True
     show_filtered_image = False
     window_high = 50
     window_width = 50
 
-    # Convert to Gray Image #
-    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        # Convert to hsv colorspace #
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+
+    # Filter white #
+    ws = (image_hsv[:, :, 1] < 130)
+    wv = (image_hsv[:, :, 2] > 170)
+    black_filtered = np.uint8(np.bitwise_and(ws, wv))
+
+    # Filter black #
+    #black_filtered = np.uint8((image_hsv[:, :, 2] < 160))
+
+    # Separate colors of image #
+    #red_filtered, white_filtered, pink_filtered, black_filtered = cm.separate_colors(image)
 
     # Finding Circles #
-    circles = cv2.HoughCircles(image_gray,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
+    circles = cv2.HoughCircles(black_filtered,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
+
+
 
     # Filtering image (near a circle coping parts from original image)  #
     filtered_image = np.zeros(image.shape).astype(np.uint8)
@@ -96,7 +111,7 @@ def circle_matching(image):
         plt.show()
 
     # Return circle map #
-    return filtered_image
+    return black_filtered
 """
 /*----------------------------------------------------------------------------------------------------
 Method: line_matching()
@@ -133,3 +148,36 @@ def line_matching(image):
         plt.imshow(image)
 
     # Finding Lines #
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: eye_matching()
+------------------------------------------------------------------------------------------------------
+This Method search eyes
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       New Image (Near Line there is the original picture, other black)
+----------------------------------------------------------------------------------------------------*/
+"""
+def shirt_cap_matching(image):
+
+    # Convert to hsv colorspace #
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+    # Filter white #
+    rh = np.bitwise_or((image_hsv[:, :, 0] < 5), (image_hsv[:, :, 0] > 172))
+    rs = (image_hsv[:, :, 1] > 100)
+    rv = (image_hsv[:, :, 2] > 140)
+    red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
+
+    # Remove object with too small and too big size and wrong angle #
+    filtered_img = cm.remove_image_objects(red_filtered, 10, 200, 1, 50, -1, 0.4)
+
+    # Normalize array to Value 0-255 #
+    filtered_img = cv2.dilate(filtered_img, np.ones((11,11)), iterations=1)
+    filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
+    filtered_img = cv2.blur(filtered_img,(11,11))
+
+
+    return filtered_img

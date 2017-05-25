@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # -- Set Parameter -- #
     startImage = 1                      # Start image1
-    endImage = 23                           # End image (Do not exceed maximal number of images!)
+    endImage = 20                           # End image (Do not exceed maximal number of images!)
     testOnlyMyFunction = False              # True: Test only my given function                        False: Test findwaldo()
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
@@ -85,15 +85,15 @@ if __name__ == "__main__":
             crop = img[by:by+bh,bx:bx+bw]
 
             # Test my function # ToDo: Insert your function here!
-            filtered_img = cm.color_matching(crop)
-            #filtered_img = sm.circle_matching(crop)
+            #filtered_img = cm.color_matching(crop)
+            filtered_img = sm.shirt_cap_matching(img)
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoGlasses.jpg")
 
             # Plot results
             plt.figure(400)
             plt.subplot(np.ceil(np.sqrt(amountOfImages)), np.ceil(np.sqrt(amountOfImages)), ImageCount + 1)
-            plt.imshow(filtered_img)
+            plt.imshow(filtered_img, cmap='gray')
             plt.title('Image: ' + np.str(ImageCount + 1))
 
             # Status
@@ -150,7 +150,8 @@ if __name__ == "__main__":
                 else:
                     plt.title('Image: ' + np.str(ImageCount + 1) + '  Wrong')
 
-
+            # Status
+            print('Image: ' + np.str(ImageCount + 1))
 
     # -- Show results -- #
     if testOnlyMyFunction == False:

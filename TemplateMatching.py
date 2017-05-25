@@ -92,6 +92,6 @@ def template_matching(image, template_path):
 
     # Normalize array to Value 0-255 #
     cv2.normalize(best_template_match, best_template_match, 0, 255, cv2.NORM_MINMAX)
-
+    
     # Return template matched picture #
     return best_template_match
