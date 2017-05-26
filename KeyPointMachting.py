@@ -42,7 +42,7 @@ def keypoint_detection():
     blur_filter = False
 
     # Load Files #
-    img = cv2.imread('data/images/4.jpg')
+    img = cv2.imread('data/images_1/4.jpg')
     img2 = cv2.imread('data/waldo/2_waldo.jpg')
 
     # Convert to Gray-Image #

@@ -58,7 +58,7 @@ def find_waldo(image):
     matched_face = fm.FaceMatching(image)
 
     # Put all results together #
-    matched_image = np.uint16(template_matched_image_glasses + matched_image_shirt + matched_face)
+    matched_image = np.uint16(template_matched_image_glasses + matched_image_shirt+matched_face)
 
     # Blur dentisty #
     matched_image = cv2.GaussianBlur(matched_image,(21,21),0)
