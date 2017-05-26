@@ -27,7 +27,7 @@ import findwaldo as fw
 import ColorMatching as cm
 import TemplateMatching as tm
 import ShapeMatching as sm
-
+import FaceMatching as fm
 
 """
 -----------------------------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # -- Set Parameter -- #
     startImage = 1                      # Start image1
-    endImage = 20                           # End image (Do not exceed maximal number of images!)
+    endImage = 5                           # End image (Do not exceed maximal number of images!)
     testOnlyMyFunction = False              # True: Test only my given function                        False: Test findwaldo()
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
@@ -86,9 +86,10 @@ if __name__ == "__main__":
 
             # Test my function # ToDo: Insert your function here!
             #filtered_img = cm.color_matching(crop)
-            filtered_img = sm.shirt_cap_matching(img)
+            #filtered_img = sm.shirt_cap_matching(img)
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoGlasses.jpg")
+            filtered_img =fm.FaceMatching(img)
 
             # Plot results
             plt.figure(400)

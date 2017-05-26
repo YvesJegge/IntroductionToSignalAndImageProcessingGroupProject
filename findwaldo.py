@@ -26,6 +26,7 @@ import cv2
 import ColorMatching as cm
 import TemplateMatching as tm
 import ShapeMatching as sm
+import FaceMatching as fm
 
 """
 /*----------------------------------------------------------------------------------------------------
@@ -40,11 +41,14 @@ Output Parameter:       x,y coordinate of waldo
 """
 def find_waldo(image):
 
-    #color_matching(image)
+    # Searching for Color that match  #
     image = cm.color_matching(image)
 
-    # Compute keypoint_detection #
+    # Searching for circles that match  #
     #image = sm.circle_matching(image)
+
+    # Searching for Face that match #
+    #filtered_img = fm.FaceMatching(img)
 
     # Compute Template Matching
     #template_matched_image_Hair = tm.template_matching(image, "data/templates/Hair.jpg")

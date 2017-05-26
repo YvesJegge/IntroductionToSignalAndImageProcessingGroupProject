@@ -52,23 +52,17 @@ def FaceMatching(image):
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace_Stage23.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, 1.2, 2)
+    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(5,5), maxSize=(80,80))
 
     # Draw Rectangle #
-    if showDetectedFaces:
-        for (x, y, w, h) in faces:
-            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            roi_gray = image_gray[y:y + h, x:x + w]
-            roi_color = image[y:y + h, x:x + w]
+    #if showDetectedFaces:
+    for (x, y, w, h) in faces:
+        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        roi_gray = image_gray[y:y + h, x:x + w]
+        roi_color = image[y:y + h, x:x + w]
         # Show Image
-        plt.imshow(image)
-        plt.show()
+        #plt.imshow(image)
+        #plt.show()
 
-
-
-if __name__ == "__main__":
-
-    image = plt.imread('data/images/15.jpg').astype(np.uint8)
-
-    FaceMatching(image)
-
+    # Return Computed image #
+    return (image)
