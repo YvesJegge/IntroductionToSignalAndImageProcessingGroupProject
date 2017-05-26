@@ -39,8 +39,8 @@ Output Parameter:       Possible WaldoPositions
 def FaceMatching(image):
 
     # Settings for Line Matching #
-    LoadModelNr = 2
-    show_detected_Faces_in_image = True
+    LoadModelNr = 4
+    show_detected_Faces_in_image = False
     show_filtered_image = False
 
     # Convert to Gray Image #
@@ -48,14 +48,24 @@ def FaceMatching(image):
 
     # Loading the CascadeClassifier-Model #
     if LoadModelNr  == 1:
+
+        # Computed with all generated Heads, 20, 20 Pixel of Cascade #
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead1_Stage23.xml')
     elif LoadModelNr == 2:
+
+        # Computed with all generated Faces, 20, 20 Pixel of Cascade #
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace1_Stage16.xml')
     elif LoadModelNr == 3:
-        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace2_Stage25.xml')
+
+        # Computed with "good" generated Faces, 20, 20 Pixel of Cascade #
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace2_Stage16.xml')
+    elif LoadModelNr == 4:
+
+        # Computed with "good" generated Faces, 20, 30 Pixel of Cascade #
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace3_Stage10.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.3, minNeighbors=3, minSize=(5,5), maxSize=(50,50))
+    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.9, minNeighbors=6, minSize=(10,10), maxSize=(30,50))
 
     # Filtering image (detected Face become Value 255 )  #
     filtered_img = np.zeros(image_gray.shape).astype(np.uint8)
@@ -90,5 +100,5 @@ def FaceMatching(image):
 
 if __name__ == "__main__":
 
-    img = plt.imread("data/images_1/4.jpg").astype(np.uint8)
+    img = plt.imread("data/images_1/3.jpg").astype(np.uint8)
     FaceMatching(img)
