@@ -45,7 +45,7 @@ def find_waldo(image):
     image = cm.color_matching(image)
 
     # Searching for circles that match  #
-    #image = sm.circle_matching(image)
+    image = sm.circle_matching(image)
 
     # Compute Template Matching
     #template_matched_image_Hair = tm.template_matching(image, "data/templates/Hair.jpg")

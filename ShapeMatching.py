@@ -46,22 +46,11 @@ def circle_matching(image):
     window_high = 50
     window_width = 50
 
-    # Convert to hsv colorspace #
-    image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-
-    # Filter white #
-    ws = (image_hsv[:, :, 1] < 130)
-    wv = (image_hsv[:, :, 2] > 170)
-    black_filtered = np.uint8(np.bitwise_and(ws, wv))
-
-    # Filter black #
-    #black_filtered = np.uint8((image_hsv[:, :, 2] < 160))
-
-    # Separate colors of image #
-    #red_filtered, white_filtered, pink_filtered, black_filtered = cm.separate_colors(image)
+    # Convert to Gray Image #
+    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Finding Circles #
-    circles = cv2.HoughCircles(black_filtered,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
+    circles = cv2.HoughCircles(image_gray,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
 
     # Filtering image (near a circle coping parts from original image)  #
     filtered_image = np.zeros(image.shape).astype(np.uint8)
@@ -108,7 +97,7 @@ def circle_matching(image):
         plt.show()
 
     # Return circle map #
-    return black_filtered
+    return filtered_image
 
 """
 /*----------------------------------------------------------------------------------------------------

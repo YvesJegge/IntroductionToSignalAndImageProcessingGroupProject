@@ -85,3 +85,8 @@ def FaceMatching(image):
 
     # Return Density image #
     return (filtered_img)
+
+if __name__ == "__main__":
+
+    img = plt.imread("data/images_1/20.jpg").astype(np.uint8)
+    FaceMatching(img)
