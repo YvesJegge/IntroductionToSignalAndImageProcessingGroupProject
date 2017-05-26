@@ -40,7 +40,7 @@ def FaceMatching(image):
 
     # Settings for Line Matching #
     showDetectedFaces = True
-    LoadModel = 1
+    LoadModel = 2
 
     # Convert to Gray Image #
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
@@ -49,20 +49,27 @@ def FaceMatching(image):
     if LoadModel == 1:
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead_Stage23.xml')
     else:
-        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace_Stage23.xml')
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace_Stage16.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=1, minSize=(5,5), maxSize=(80,80))
+    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(5,5), maxSize=(60,60))
 
     # Draw Rectangle #
-    #if showDetectedFaces:
-    for (x, y, w, h) in faces:
-        cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-        roi_gray = image_gray[y:y + h, x:x + w]
-        roi_color = image[y:y + h, x:x + w]
-        # Show Image
-        #plt.imshow(image)
-        #plt.show()
+    if showDetectedFaces:
+        for (x, y, w, h) in faces:
+            cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            roi_gray = image_gray[y:y + h, x:x + w]
+            roi_color = image[y:y + h, x:x + w]
+        #Show Image
+        plt.imshow(image)
+        plt.show()
 
     # Return Computed image #
     return (image)
+
+
+if __name__ == "__main__":
+
+    img = plt.imread("data/images/1.jpg").astype(np.uint8)
+
+    FaceMatching(img)
