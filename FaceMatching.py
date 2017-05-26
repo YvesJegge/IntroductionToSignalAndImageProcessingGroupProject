@@ -40,7 +40,7 @@ def FaceMatching(image):
 
     # Settings for Line Matching #
     LoadModelNr = 2
-    show_detected_Faces_in_image = False
+    show_detected_Faces_in_image = True
     show_filtered_image = False
 
     # Convert to Gray Image #
@@ -51,9 +51,11 @@ def FaceMatching(image):
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead1_Stage23.xml')
     elif LoadModelNr == 2:
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace1_Stage16.xml')
+    elif LoadModelNr == 3:
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace2_Stage25.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(10,10), maxSize=(50,50))
+    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.3, minNeighbors=3, minSize=(5,5), maxSize=(50,50))
 
     # Filtering image (detected Face become Value 255 )  #
     filtered_img = np.zeros(image_gray.shape).astype(np.uint8)
@@ -88,5 +90,5 @@ def FaceMatching(image):
 
 if __name__ == "__main__":
 
-    img = plt.imread("data/images_1/20.jpg").astype(np.uint8)
+    img = plt.imread("data/images_1/4.jpg").astype(np.uint8)
     FaceMatching(img)

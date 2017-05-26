@@ -101,13 +101,13 @@ def circle_matching(image):
 
 """
 /*----------------------------------------------------------------------------------------------------
-Method: eye_matching()
+Method: shirt_cap_matchin()
 ------------------------------------------------------------------------------------------------------
 This Method search eyes
 ------------------------------------------------------------------------------------------------------
 Input  Parameter:       image as a input
 
-Output Parameter:       New Image (Near Line there is the original picture, other black)
+Output Parameter:       Denisty Map
 ----------------------------------------------------------------------------------------------------*/
 """
 def shirt_cap_matching(image):
