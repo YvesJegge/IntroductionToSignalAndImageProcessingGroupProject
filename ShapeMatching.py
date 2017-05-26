@@ -41,14 +41,13 @@ Output Parameter:       New Image (Near circle there is the original picture, ot
 def circle_matching(image):
 
     # Settings for circle Matching #
-    show_circle_in_image = True
+    show_circle_in_image = False
     show_filtered_image = False
     window_high = 50
     window_width = 50
 
-        # Convert to hsv colorspace #
+    # Convert to hsv colorspace #
     image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-
 
     # Filter white #
     ws = (image_hsv[:, :, 1] < 130)
@@ -63,8 +62,6 @@ def circle_matching(image):
 
     # Finding Circles #
     circles = cv2.HoughCircles(black_filtered,cv2.HOUGH_GRADIENT, dp=1,minDist=4,param1=50,param2=13,minRadius=2,maxRadius=8)
-
-
 
     # Filtering image (near a circle coping parts from original image)  #
     filtered_image = np.zeros(image.shape).astype(np.uint8)
@@ -112,41 +109,6 @@ def circle_matching(image):
 
     # Return circle map #
     return black_filtered
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: line_matching()
-------------------------------------------------------------------------------------------------------
-This Method search for lines in the image (for searching the typically Wally Pattern).
-This algorithm need first a preprocessingof the picture
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input
-
-Output Parameter:       New Image (Near Line there is the original picture, other black)
-----------------------------------------------------------------------------------------------------*/
-"""
-def line_matching(image):
-    # Settings for Line Matching #
-    show_line = True
-
-    # Convert to Gray Image #
-    image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-
-    # Compute Canny edges #
-    edges = cv2.Canny(image_gray, 50, 150, apertureSize=3)
-
-    # Finding Lines #
-    lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=100, minLineLength=4, maxLineGap=2)
-
-    # Draw Lines
-    if lines is not None:
-        for x1, y1, x2, y2 in lines[0]:
-            cv2.line(image, (x1, y1), (x2, y2), (255, 0, 0), 1)
-
-    # Show filtered image  #
-    if show_line:
-        plt.figure(400)
-        plt.imshow(image)
-
 
 """
 /*----------------------------------------------------------------------------------------------------

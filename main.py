@@ -40,7 +40,7 @@ if __name__ == "__main__":
 
     # -- Set Parameter -- #
     startImage = 1                      # Start image1
-    endImage = 23                           # End image (Do not exceed maximal number of images!)
+    endImage = 20                           # End image (Do not exceed maximal number of images!)
     testOnlyMyFunction = False              # True: Test only my given function                        False: Test findwaldo()
     showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     for ImageCount in range(startImage-1, endImage):
 
         # Generate image paths #
-        image_path = "data/images/" + str(ImageCount + 1) + ".jpg"
+        image_path = "data/images_1/" + str(ImageCount + 1) + ".jpg"
         solution_path = "data/ground_truths/" + str(ImageCount + 1) + ".png"
 
         # Import image #

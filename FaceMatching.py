@@ -39,37 +39,49 @@ Output Parameter:       Possible WaldoPositions
 def FaceMatching(image):
 
     # Settings for Line Matching #
-    showDetectedFaces = True
-    LoadModel = 2
+    LoadModelNr = 2
+    show_detected_Faces_in_image = False
+    show_filtered_image = False
 
     # Convert to Gray Image #
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Loading the CascadeClassifier-Model #
-    if LoadModel == 1:
-        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead_Stage23.xml')
-    else:
-        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace_Stage16.xml')
+    if LoadModelNr  == 1:
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead1_Stage23.xml')
+    elif LoadModelNr == 2:
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace1_Stage16.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(5,5), maxSize=(60,60))
+    faces = face_cascade.detectMultiScale(image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(10,10), maxSize=(50,50))
 
-    # Draw Rectangle #
-    if showDetectedFaces:
+    # Filtering image (detected Face become Value 255 )  #
+    filtered_img = np.zeros(image_gray.shape).astype(np.uint8)
+    for (x, y, w, h) in faces:
+        cv2.rectangle(filtered_img , (x, y), (x + w, y + h), 255, -1)
+
+    # Normalize array to Value 0-255 #
+    filtered_img = cv2.dilate(filtered_img, np.ones((11, 11)), iterations=1)
+    filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
+    filtered_img = cv2.blur(filtered_img, (11, 11))
+
+    # Draw Rectangle in Original Picture #
+    if show_detected_Faces_in_image:
         for (x, y, w, h) in faces:
             cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
-            roi_gray = image_gray[y:y + h, x:x + w]
-            roi_color = image[y:y + h, x:x + w]
-        #Show Image
+        plt.figure(500)
         plt.imshow(image)
+        plt.title("Detected Faces")
+
+    # Show filtered image  #
+    if show_filtered_image:
+        plt.figure(501)
+        plt.imshow(filtered_img, cmap='gray')
+        plt.title("Denisity Map of Detected Faces")
+
+    # Show both images at the same time #
+    if show_detected_Faces_in_image or show_filtered_image:
         plt.show()
 
-    # Return Computed image #
-    return (image)
-
-
-if __name__ == "__main__":
-
-    img = plt.imread("data/images/1.jpg").astype(np.uint8)
-
-    FaceMatching(img)
+    # Return Density image #
+    return (filtered_img)
