@@ -99,35 +99,93 @@ def circle_matching(image):
     # Return circle map #
     return filtered_image
 
+
 """
 /*----------------------------------------------------------------------------------------------------
-Method: shirt_cap_matchin()
+Method: cap_matching()
 ------------------------------------------------------------------------------------------------------
-This Method search eyes
+This Method search caps
 ------------------------------------------------------------------------------------------------------
 Input  Parameter:       image as a input
 
-Output Parameter:       Denisty Map
+Output Parameter:       New Image (Near Line there is the original picture, other black)
 ----------------------------------------------------------------------------------------------------*/
 """
-def shirt_cap_matching(image):
 
+
+def cap_matching(image):
     # Convert to hsv colorspace #
     image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
 
-    # Filter white #
-    rh = np.bitwise_or((image_hsv[:, :, 0] < 5), (image_hsv[:, :, 0] > 172))
-    rs = (image_hsv[:, :, 1] > 100)
+    # Filter red #
+    rh = np.bitwise_or((image_hsv[:, :, 0] < 6), (image_hsv[:, :, 0] > 165))
+    rs = (image_hsv[:, :, 1] > 50)
     rv = (image_hsv[:, :, 2] > 140)
     red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
 
+    # Filter black #
+    black_filtered = np.uint8((image_hsv[:, :, 2] < 98))
+
+    # Remove small objects
+    red_filtered = cm.remove_image_objects(red_filtered, 8, 150, 0.8, 5, -1.5, -0.4)
+    black_filtered = cv2.erode(black_filtered, np.ones((2, 3)), iterations=1)
+    black_filtered = cm.remove_image_objects(black_filtered, 2, 1000, 0.25, 4, -2, 2)
+
+    # Make hair and cap bigger
+    red_filtered = cv2.dilate(red_filtered, np.ones((4, 6)), iterations=1)
+    black_filtered = cv2.dilate(black_filtered, np.ones((4, 6)), iterations=1)
+
+    # Find overlaps of hair and cap #
+    filtered_img = np.bitwise_and(red_filtered, black_filtered)
+
     # Remove object with too small and too big size and wrong angle #
-    filtered_img = cm.remove_image_objects(red_filtered, 10, 200, 1, 50, -1, 0.4)
+    filtered_img = cm.remove_image_objects(filtered_img, 1, 150, 0.8, 5, -2.5, 2.5)
 
     # Normalize array to Value 0-255 #
-    filtered_img = cv2.dilate(filtered_img, np.ones((11,11)), iterations=1)
+    filtered_img = cv2.dilate(filtered_img, np.ones((30, 15)), iterations=1)
     filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
-    filtered_img = cv2.blur(filtered_img,(11,11))
-
+    filtered_img = cv2.blur(filtered_img, (30, 15))
 
     return filtered_img
+
+
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: shirt_matching()
+------------------------------------------------------------------------------------------------------
+This Method search shirts
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       New Image (Near Line there is the original picture, other black)
+----------------------------------------------------------------------------------------------------*/
+"""
+
+
+def shirt_matching(image):
+    # Convert to hsv colorspace #
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+
+    # Filter red #
+    rh = np.bitwise_or((image_hsv[:, :, 0] < 6), (image_hsv[:, :, 0] > 165))
+    rs = (image_hsv[:, :, 1] > 50)
+    rv = (image_hsv[:, :, 2] > 140)
+    red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
+
+    # Filter black #
+    black_filtered = np.uint8((image_hsv[:, :, 2] < 98))
+
+    # Remove small objects
+    #red_filtered = cm.remove_image_objects(red_filtered, 20, 150, 2, 100, -0.5, 0.5)
+    red_filtered= cv2.erode(red_filtered, np.ones((2, 3)), iterations=1)
+    red_filtered = cm.remove_image_objects(red_filtered, 10, 150, 0.5, 5, -1, 1)
+
+
+
+    # Normalize array to Value 0-255 #
+    #filtered_img = cv2.dilate(filtered_img, np.ones((30, 15)), iterations=1)
+    #filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
+    #filtered_img = cv2.blur(filtered_img, (30, 15))
+
+    return red_filtered

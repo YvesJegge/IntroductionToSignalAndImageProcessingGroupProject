@@ -86,10 +86,11 @@ if __name__ == "__main__":
 
             # Test my function # ToDo: Insert your function here!
             #filtered_img = cm.color_matching(crop)
+            filtered_img = tm.eye_matching(crop)
             #filtered_img = sm.shirt_cap_matching(img)
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoGlasses.jpg")
-            filtered_img =fm.FaceMatching(img)
+            #filtered_img =fm.FaceMatching(img)
 
             # Plot results
             plt.figure(400)

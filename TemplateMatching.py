@@ -59,17 +59,16 @@ def template_matching(image, template_path):
         image = cv2.Canny(image, threshold1=thr_low_image, threshold2=thr_high_image)
         # Compute for Canny edge dedection for template #
         max_magnitude_template = np.median(template)
-        thr_high_template = 0.2 * max_magnitude_template
+        thr_high_template = 0.3 * max_magnitude_template
         thr_low_template = thr_high_template / 2
         template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
 
     # Initialize used variable #
-    best_template_match = image
+    dentency_map = np.zeros(image.shape)
     (template_hight, template_width) = template.shape[:2]
-    best_max_val = None
 
     # -- Loop over the scales of the image -- #
-    for scale in np.linspace(60, 140, 20)[::-1]:
+    for scale in np.linspace(50, 200, 5)[::-1]:
 
         # Resize Image #
         image_resized = misc.imresize(image, int(scale))
@@ -80,18 +79,42 @@ def template_matching(image, template_path):
 
         # Compute Template Matching #
         matched_image = cv2.matchTemplate(image_resized, template, method=cv2.TM_CCOEFF)
-        (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
-        # Store best match #
-        if best_max_val is None or max_val > best_max_val:
-            best_max_val = max_val
-            best_template_match = matched_image
+        # Resize image to original size
+        resized_image = misc.imresize(matched_image, image.shape)
 
-    # Resize best Match to Original Size #
-    best_template_match = misc.imresize(best_template_match, image.shape)
+        # sum up max-values #
+        d = (resized_image > dentency_map)
+        dentency_map[d] = resized_image[d]
 
     # Normalize array to Value 0-255 #
-    cv2.normalize(best_template_match, best_template_match, 0, 255, cv2.NORM_MINMAX)
+    dentency_map = cv2.blur(dentency_map, (30, 15))
+    filtered_img = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
     
     # Return template matched picture #
-    return best_template_match
+    return filtered_img
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: eye_matching()
+------------------------------------------------------------------------------------------------------
+This Method search the eye of waldo
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       Density image that is generated from the eye matching
+----------------------------------------------------------------------------------------------------*/
+"""
+def eye_matching(image):
+
+    amount_of_templates = 3
+    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+
+    # Use different eye templates
+    for ii in range(0, amount_of_templates):
+
+        dentency_map += np.uint16(template_matching(image, ("data/templates/Glasses/" + str(ii + 1) + "_Glasses.jpg")))
+
+    dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
+
+    return dentency_map

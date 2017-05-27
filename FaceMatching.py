@@ -39,7 +39,7 @@ Output Parameter:       Possible WaldoPositions
 def FaceMatching(image):
 
     # Settings for Line Matching #
-    LoadModelNr = 4
+    LoadModelNr = 3
     show_detected_Faces_in_image = False
     show_filtered_image = False
 

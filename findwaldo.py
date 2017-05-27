@@ -45,22 +45,26 @@ def find_waldo(image):
     image = cm.color_matching(image)
 
     # Searching for circles that match  #
-    image = sm.circle_matching(image)
+    #image = sm.circle_matching(image)
 
     # Compute Template Matching
     #template_matched_image_Hair = tm.template_matching(image, "data/templates/Hair.jpg")
-    template_matched_image_glasses = tm.template_matching(image, "data/templates/WaldoGlasses.jpg")
+    template_matched_image_glasses = tm.eye_matching(image)
 
     # Searching for Shirts #
-    matched_image_shirt = sm.shirt_cap_matching(image)
+    matched_image_cap = sm.cap_matching(image)
 
     # Searching for Faces #
     matched_face = fm.FaceMatching(image)
 
-    # Put all results together #
-    matched_image = np.uint16(template_matched_image_glasses + matched_image_shirt+matched_face)
 
-    # Blur dentisty #
+    # Put all results together # ToDo: Important!! cast all variables to uint16!!!
+    matched_image = np.uint16(matched_image_cap) + np.uint16(template_matched_image_glasses) + np.uint16(matched_face)
+
+    print("Max probability:" + str(np.max(matched_image)))
+
+
+    # Blur dentisty
     matched_image = cv2.GaussianBlur(matched_image,(21,21),0)
 
     # Only for Testing Intensity Map #

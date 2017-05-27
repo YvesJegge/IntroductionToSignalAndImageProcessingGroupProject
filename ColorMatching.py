@@ -54,13 +54,13 @@ def color_matching(image):
     black_filtered = cv2.morphologyEx(black_filtered, cv2.MORPH_OPEN, kernel_noise)
 
     # Remove object with too small and too big size #
-    red_filtered = remove_image_objects(red_filtered, 10, 200)
+    red_filtered = remove_image_objects(red_filtered, 8, 200, 1, 8, -1.5, 0.5)
     white_filtered = remove_image_objects(white_filtered, 3, 300)
     pink_filtered = remove_image_objects(pink_filtered, 5, 300)
     black_filtered = remove_image_objects(black_filtered, 12, 300)
 
     # Dilate filters (make objects bigger) #
-    red_filtered = cv2.dilate(red_filtered, kernel_small, iterations=1)
+    red_filtered = cv2.dilate(red_filtered, kernel_small, iterations=2)
     white_filtered = cv2.dilate(white_filtered, kernel_small, iterations=1)
     pink_filtered = cv2.dilate(pink_filtered, kernel_small, iterations=1)
     black_filtered = cv2.dilate(black_filtered, kernel_small, iterations=2)
@@ -107,9 +107,6 @@ def color_matching(image):
 
     # Cut out only matched areas #
     filtered_img = cv2.bitwise_and(image, image, mask = np.uint8(color_filtered >= 3))
-
-    # Normalize array to Value 0-255 #
-    # cv2.normalize(color_filtered, color_filtered, 0, 255, cv2.NORM_MINMAX)
 
     return filtered_img
 
