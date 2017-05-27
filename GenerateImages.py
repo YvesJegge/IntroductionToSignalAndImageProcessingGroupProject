@@ -40,9 +40,9 @@ if __name__ == "__main__":
     endImage = 23                       # End image (Do not exceed maximal number of images!)
 
 
-    xMask = 100
-    yMask = 100
-    amountOfCutsPerImage = 100
+    xMask = 200
+    yMask = 300
+    amountOfCutsPerImage = 150
 
     amountOfImages = endImage - startImage + 1
 
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     for ImageCount in range(startImage-1, endImage):
 
         # Generate image paths #
-        image_path = "data/images/" + str(ImageCount + 1) + ".jpg"
+        image_path = "data/images_1/" + str(ImageCount + 1) + ".jpg"
         solution_path = "data/ground_truths/" + str(ImageCount + 1) + ".png"
 
 
@@ -86,13 +86,13 @@ if __name__ == "__main__":
                 yy = np.random.randint(0, yImage - yMask)
 
                 # Make shure waldo is not in the cutted image
-                if (solution[yy,xx] == 0) and (solution[yy + yMask,xx + xMask] == 0):
+                if (solution[yy,xx] == 0) and (solution[yy + yMask,xx + xMask] == 0) and (image [yy,xx] > 0) and (image[yy + yMask,xx + xMask] > 0):
                     break
 
 
             # Cut waldo out and save this image #
             crop = image[yy:yy+yMask,xx:xx+xMask]
-            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".png" , crop, cmap='gray')
+            plt.imsave("data/templates/background/" + str(ImageCount * amountOfCutsPerImage + i + 1) + ".png" , crop, cmap='gray', format='png')
             f.write("neg/"+ str(ImageCount * amountOfCutsPerImage + i + 1) + ".png"+"\n")
 
 
