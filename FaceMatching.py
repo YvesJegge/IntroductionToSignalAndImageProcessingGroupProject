@@ -61,11 +61,14 @@ def FaceMatching(image):
         # Computed with "good" generated Faces -numP 1000 -numNeg 1000 -numStages 10  (and 12 ,16) -w 16 -h 24 #
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace4_3_Stage10.xml')
     elif LoadModelNr == 5:
+        # Computed with "good" generated Faces and manualy faces -numP 2400 -numNeg 1200 -numStages 10  (and 12 ,16) -w 16 -h 24 #
+        face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoFace5_1_Stage10.xml')
+    elif LoadModelNr == 6:
         # Computed with "good" generated Heads -numP 1800 - numNeg 900 - numStages 10 (and 12, 16) - w 20 - h 25 #
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead2_1_Stage10.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, 20 , 20, minSize = (10, 10), maxSize = (30, 50) )#minSize = (10, 10), maxSize = (30, 50)) #minSize=(15,30), maxSize=(25,50))#scaleFactor=2, minNeighbors=20, minSize=(15,30), maxSize=(25,50))
+    faces = face_cascade.detectMultiScale(image_gray, 20 , 20, minSize = (10, 10), maxSize = (30, 50))
 
     # Filtering image (detected Face become Value 255 )  #
     filtered_img = np.zeros(image_gray.shape).astype(np.uint8)
