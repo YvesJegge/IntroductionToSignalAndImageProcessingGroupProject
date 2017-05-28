@@ -43,8 +43,8 @@ def circle_matching(image):
     # Settings for circle Matching #
     show_circle_in_image = False
     show_filtered_image = False
-    window_high = 50
-    window_width = 50
+    window_high = 70
+    window_width = 70
 
     # Convert to Gray Image #
     image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
