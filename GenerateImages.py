@@ -8,7 +8,7 @@
  Python            Python 3.6
 
  @author           Simon Scheurer, Yves Jegge
- @date             11.05.2016
+ @date             28.05.2016
 
  @status           Development
 
@@ -17,9 +17,6 @@
 # Import Package
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io
-from scipy import signal
-import matplotlib.patches as patches
 import cv2
 
 # Import Modul #

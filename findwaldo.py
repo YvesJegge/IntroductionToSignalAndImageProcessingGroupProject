@@ -8,7 +8,7 @@
  Python            Python 3.6
 
  @author           Simon Scheurer, Yves Jegge
- @date             11.05.2016
+ @date             28.05.2016
 
  @status           Development
 
@@ -16,10 +16,6 @@
 """
 # Import Package #
 import numpy as np
-import matplotlib.pyplot as plt
-import cv2
-from skimage import io
-from scipy import signal, misc
 import cv2
 
 # Import Modul #
@@ -41,30 +37,28 @@ Output Parameter:       x,y coordinate of waldo
 """
 def find_waldo(image):
 
-    # Searching for Color that match  #
+    # Searching for Color that match and cut regions out  #
     image = cm.color_matching(image)
 
-    # Searching for circles that match  #
+    # Searching for circles that match and cut regions out #
     image = sm.circle_matching(image)
 
     # Compute Template Matching
     template_matched_image_Hair = tm.hairfront_matching(image)
     template_matched_image_glasses = tm.eye_matching(image)
 
-    # Searching for Shirts #
+    # Searching for Caps #
     matched_image_cap = sm.cap_matching(image)
 
     # Searching for Faces #
     matched_face = fm.FaceMatching(image)
 
-    # Put all results together #
+    # Put all probabilities together (Rate the methods according to them true positive rate)#
     matched_image = \
-        1 * np.uint16(matched_image_cap) + \
-        1 * np.uint16(template_matched_image_glasses) + \
-        0 * np.uint16(template_matched_image_Hair) + \
-        1 * np.uint16(matched_face)
-
-    print("Max probability:" + str(np.max(matched_image)))
+        1.0 * np.uint16(matched_image_cap) + \
+        1.0 * np.uint16(template_matched_image_glasses) + \
+        0.1 * np.uint16(template_matched_image_Hair) + \
+        0.9 * np.uint16(matched_face)
 
 
     # Blur dentisty
@@ -74,8 +68,9 @@ def find_waldo(image):
     (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
 
     # Convert Coordinate Origin #
+    y_shift = 10 # Face centered -> body centered #
     x_coordinate = max_loc[0]
-    y_coordinate = image.shape[0] - max_loc[1]
+    y_coordinate = image.shape[0] - max_loc[1] - y_shift
 
     # return position of Waldo #
     return x_coordinate, y_coordinate

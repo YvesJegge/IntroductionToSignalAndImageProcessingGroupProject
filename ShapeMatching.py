@@ -8,7 +8,7 @@
  Python            Python 3.6
 
  @author           Simon Scheurer, Yves Jegge
- @date             24.05.2016
+ @date             28.05.2016
 
  @status           Development
 
@@ -18,9 +18,7 @@
 # Import Package #
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
-from skimage import io
-from scipy import signal, misc
+from scipy import signal
 import cv2
 
 # Import Modul #
@@ -173,19 +171,25 @@ def shirt_matching(image):
     rv = (image_hsv[:, :, 2] > 140)
     red_filtered = np.uint8(np.bitwise_and(np.bitwise_and(rh, rs), rv))
 
-    # Filter black #
-    black_filtered = np.uint8((image_hsv[:, :, 2] < 98))
+    # Detects line which are close to an other line #
+    kernel = np.array([[ 1],[ 1],[-1],[-1],[-1],[-1],[ 1],[ 1]])
+    red_filtered = signal.convolve2d(red_filtered, kernel, boundary='symm', mode='same')
+    red_filtered = np.uint8((red_filtered >= 0.5 * np.max(red_filtered)))
 
-    # Remove small objects
-    #red_filtered = cm.remove_image_objects(red_filtered, 20, 150, 2, 100, -0.5, 0.5)
-    red_filtered= cv2.erode(red_filtered, np.ones((2, 3)), iterations=1)
-    red_filtered = cm.remove_image_objects(red_filtered, 10, 150, 0.5, 5, -1, 1)
+    # Remove too small and too big objects with wrong angles #
+    red_filtered = cm.remove_image_objects(red_filtered, 10, 100, 1.2, 6, -1, 0.3)
 
+    # Detects line which are close to an other line #
+    kernel = np.array([[ 1],[ 1],[ 1],[ 1],[ 1],[-2],[-2],[-2],[-2],[ 1],[ 1],[ 1],[ 1],[ 1]])
+    red_filtered = signal.convolve2d(red_filtered, kernel, boundary='symm', mode='same')
+    red_filtered = np.uint8((red_filtered >= 0.5 * np.max(red_filtered)))
 
+    # Remove too small and too big objects with wrong angles #
+    red_filtered = cm.remove_image_objects(red_filtered, 10, 150, 0.8, 10, -3, 0.5)
 
     # Normalize array to Value 0-255 #
-    #filtered_img = cv2.dilate(filtered_img, np.ones((30, 15)), iterations=1)
-    #filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
-    #filtered_img = cv2.blur(filtered_img, (30, 15))
+    filtered_img = cv2.dilate(red_filtered, np.ones((30, 15)), iterations=1)
+    filtered_img = cv2.normalize(filtered_img, filtered_img, 0, 255, cv2.NORM_MINMAX)
+    filtered_img = cv2.blur(filtered_img, (30, 10))
 
-    return red_filtered
+    return filtered_img

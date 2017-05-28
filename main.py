@@ -8,7 +8,7 @@
  Python            Python 3.6
 
  @author           Simon Scheurer, Yves Jegge
- @date             11.05.2016
+ @date             28.05.2016
 
  @status           Development
 
@@ -17,9 +17,6 @@
 # Import Package
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io
-from scipy import signal
-import matplotlib.patches as patches
 import cv2
 
 # Import Modul #
@@ -33,16 +30,16 @@ import FaceMatching as fm
 -----------------------------------------------------------------------------------------------------
 Main Programm
 -----------------------------------------------------------------------------------------------------
-This File wil control / test the group project Where is Waldo
+This File will control / test the group project Where is Waldo
 -----------------------------------------------------------------------------------------------------
 """
 if __name__ == "__main__":
 
     # -- Set Parameter -- #
-    startImage = 1                      # Start image1
-    endImage = 23                           # End image (Do not exceed maximal number of images!)
+    startImage = 1                         # Start image1
+    endImage = 23                          # End image (Do not exceed maximal number of images!)
     testOnlyMyFunction = False             # True: Test only my given function                        False: Test findwaldo()
-    showImages = False                      # True: Show images                                        False: Only calculation
+    showImages = True                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
     showOnlyWrongPositionsImages = False   # True: Plot only images with wrong position calculation   False: Do not show true position
@@ -84,9 +81,9 @@ if __name__ == "__main__":
             # Cut out waldo
             crop = img[by:by+bh,bx:bx+bw]
 
-            # Test my function # ToDo: Insert your function here!
+            # Test my function #
             #filtered_img = cm.color_matching(crop)
-            filtered_img = tm.eye_matching(crop)
+            filtered_img = sm.shirt_matching(img)
             #filtered_img = sm.shirt_cap_matching(img)
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoFace.jpg")
             #filtered_img = tm.template_matching(crop, "data/templates/WaldoGlasses.jpg")
