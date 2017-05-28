@@ -68,7 +68,7 @@ def FaceMatching(image):
         face_cascade = cv2.CascadeClassifier('data/haarcascades/Cascade_WaldoHead2_1_Stage10.xml')
 
     # Detect Faces #
-    faces = face_cascade.detectMultiScale(image_gray, 20 , 20, minSize = (10, 10), maxSize = (30, 50))
+    faces = face_cascade.detectMultiScale(image_gray, 1.1 , 2, minSize = (18, 25), maxSize = (25, 35))
 
     # Filtering image (detected Face become Value 255 )  #
     filtered_img = np.zeros(image_gray.shape).astype(np.uint8)
@@ -103,5 +103,5 @@ def FaceMatching(image):
 
 if __name__ == "__main__":
 
-    img = plt.imread("data/images_1/3.jpg").astype(np.uint8)
+    img = plt.imread("data/images_1/22.jpg").astype(np.uint8)
     FaceMatching(img)
