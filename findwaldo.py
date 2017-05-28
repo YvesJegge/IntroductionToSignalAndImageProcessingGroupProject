@@ -57,9 +57,8 @@ def find_waldo(image):
     # Searching for Faces #
     matched_face = fm.FaceMatching(image)
 
-
     # Put all results together # ToDo: Important!! cast all variables to uint16!!!
-    matched_image = np.uint16(matched_image_cap) + np.uint16(template_matched_image_glasses) + np.uint16(matched_face)
+    matched_image = np.uint16(matched_image_cap) + np.uint16(template_matched_image_glasses)+ np.uint16(matched_face)
 
     print("Max probability:" + str(np.max(matched_image)))
 
