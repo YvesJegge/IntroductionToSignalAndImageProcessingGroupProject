@@ -31,15 +31,14 @@ Method: template_matching()
 ------------------------------------------------------------------------------------------------------
 This Method runs a template matching algorithm throws the image
 ------------------------------------------------------------------------------------------------------
-Input  Parameter:       image as a input, template path
+Input  Parameter:       image as a input, template path, scale parameters
 
 Output Parameter:       Density image that is generated from the template matching
 ----------------------------------------------------------------------------------------------------*/
 """
-def template_matching(image, template_path):
+def template_matching(image, template_path, scale_min = 50, scale_max = 100, amount_of_scale = 3, gray_picture = True):
 
     #-- Set Settings for template Matching-- #
-    gray_picture = True
     canny_detection = False
 
     # Read in Template Picture #
@@ -64,11 +63,11 @@ def template_matching(image, template_path):
         template = cv2.Canny(template, threshold1=thr_low_template, threshold2=thr_high_template)
 
     # Initialize used variable #
-    dentency_map = np.zeros(image.shape)
+    dentency_map = np.zeros((image.shape[0],image.shape[1]))
     (template_hight, template_width) = template.shape[:2]
 
     # -- Loop over the scales of the image -- #
-    for scale in np.linspace(50, 200, 5)[::-1]:
+    for scale in np.linspace(scale_min, scale_max, amount_of_scale)[::-1]:
 
         # Resize Image #
         image_resized = misc.imresize(image, int(scale))
@@ -114,6 +113,56 @@ def eye_matching(image):
     for ii in range(0, amount_of_templates):
 
         dentency_map += np.uint16(template_matching(image, ("data/templates/Glasses/" + str(ii + 1) + "_Glasses.jpg")))
+
+    dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
+
+    return dentency_map
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: hair_matching()
+------------------------------------------------------------------------------------------------------
+This Method search the hair close to the cap of waldo
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       Density image that is generated from the eye matching
+----------------------------------------------------------------------------------------------------*/
+"""
+def hair_matching(image):
+
+    amount_of_templates = 3
+    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+
+    # Use different eye templates
+    for ii in range(0, amount_of_templates):
+
+        dentency_map += np.uint16(template_matching(image, ("data/templates/Hair/" + str(ii + 1) + "_Hair.jpg"), 75, 100, 2))
+
+    dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
+
+    return dentency_map
+
+"""
+/*----------------------------------------------------------------------------------------------------
+Method: hairfront_matching()
+------------------------------------------------------------------------------------------------------
+This Method search the top of the hair of waldo
+------------------------------------------------------------------------------------------------------
+Input  Parameter:       image as a input
+
+Output Parameter:       Density image that is generated from the eye matching
+----------------------------------------------------------------------------------------------------*/
+"""
+def hairfront_matching(image):
+
+    amount_of_templates = 3
+    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+
+    # Use different eye templates
+    for ii in range(0, amount_of_templates):
+
+        dentency_map += np.uint16(template_matching(image, ("data/templates/HairFront/" + str(ii + 1) + "_HairFront.jpg"), 50, 100, 2))
 
     dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
 

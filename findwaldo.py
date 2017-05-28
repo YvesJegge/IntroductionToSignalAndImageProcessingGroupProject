@@ -48,7 +48,7 @@ def find_waldo(image):
     #image = sm.circle_matching(image)
 
     # Compute Template Matching
-    #template_matched_image_Hair = tm.template_matching(image, "data/templates/Hair.jpg")
+    template_matched_image_Hair = tm.hairfront_matching(image)
     template_matched_image_glasses = tm.eye_matching(image)
 
     # Searching for Shirts #
@@ -57,17 +57,18 @@ def find_waldo(image):
     # Searching for Faces #
     matched_face = fm.FaceMatching(image)
 
-    # Put all results together # ToDo: Important!! cast all variables to uint16!!!
-    matched_image = np.uint16(matched_image_cap) + np.uint16(template_matched_image_glasses)+ np.uint16(matched_face)
+    # Put all results together #
+    matched_image = \
+        1 * np.uint16(matched_image_cap) + \
+        1 * np.uint16(template_matched_image_glasses) + \
+        0.1 * np.uint16(template_matched_image_Hair) + \
+        1 * np.uint16(matched_face)
 
     print("Max probability:" + str(np.max(matched_image)))
 
 
     # Blur dentisty
     matched_image = cv2.GaussianBlur(matched_image,(21,21),0)
-
-    # Only for Testing Intensity Map #
-    #display_denisty_map(image, matched_image)
 
     # Find Maximum Value of intensity Map #
     (min_val, max_val, min_loc, max_loc) = cv2.minMaxLoc(matched_image)
@@ -79,31 +80,6 @@ def find_waldo(image):
     # return position of Waldo #
     return x_coordinate, y_coordinate
 
-"""
-/*----------------------------------------------------------------------------------------------------
-Method: display_denisty_map()
-------------------------------------------------------------------------------------------------------
-This Method takes the original image and the denisty image and print int out
-------------------------------------------------------------------------------------------------------
-Input  Parameter:       original_image, denisty_image
-
-Output Parameter:       None
-----------------------------------------------------------------------------------------------------*/
-"""
-def display_denisty_map(original_image, denisty_image):
-    # Plot Original Image  #
-    plt.figure(100)
-    plt.subplot(1, 2, 1)
-    plt.imshow(original_image)
-    plt.axis('on')
-    plt.title('Original Map')
-    # Plot Density Map #
-    plt.subplot(1, 2, 2)
-    plt.imshow(denisty_image, cmap='gray')
-
-    plt.axis('on')
-    plt.title('Intensity Map')
-    plt.show
 
 
 

@@ -193,10 +193,5 @@ def remove_image_objects(img, min_size, max_size, min_aspect_ratio = 0, max_aspe
             if (aspect_ratio > max_aspect_ratio) or (aspect_ratio < min_aspect_ratio) or (angle_ratio < min_angle_ratio) or (angle_ratio > max_angle_ratio):
                 img2[y:y+h, x:x+w] = 0
 
-
-
-
-
-
     return img2
 

@@ -42,7 +42,7 @@ if __name__ == "__main__":
     startImage = 1                      # Start image1
     endImage = 23                           # End image (Do not exceed maximal number of images!)
     testOnlyMyFunction = False             # True: Test only my given function                        False: Test findwaldo()
-    showImages = True                      # True: Show images                                        False: Only calculation
+    showImages = False                      # True: Show images                                        False: Only calculation
     showSubplot = False                    # True: Show images in subplot                             False: Show images separatly
     markTruePosition = True                # True: Mark true position of waldo                        False: Do not mark waldo
     showOnlyWrongPositionsImages = False   # True: Plot only images with wrong position calculation   False: Do not show true position
