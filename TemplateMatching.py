@@ -20,7 +20,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from skimage import io
-from scipy import signal, misc
+from scipy import signal, misc, ndimage
 import cv2
 
 # Import Modul #
@@ -78,6 +78,7 @@ def template_matching(image, template_path, scale_min = 50, scale_max = 100, amo
 
         # Compute Template Matching #
         matched_image = cv2.matchTemplate(image_resized, template, method=cv2.TM_CCOEFF)
+        matched_image = cv2.normalize(matched_image, matched_image, 0, 255, cv2.NORM_MINMAX)
 
         # Resize image to original size
         resized_image = misc.imresize(matched_image, image.shape)
@@ -87,8 +88,8 @@ def template_matching(image, template_path, scale_min = 50, scale_max = 100, amo
         dentency_map[d] = resized_image[d]
 
     # Normalize array to Value 0-255 #
-    dentency_map = cv2.blur(dentency_map, (30, 15))
-    filtered_img = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
+    dentency_map = ndimage.maximum_filter(dentency_map, (30,20))
+    filtered_img = dentency_map# = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
     
     # Return template matched picture #
     return filtered_img
@@ -107,12 +108,16 @@ Output Parameter:       Density image that is generated from the eye matching
 def eye_matching(image):
 
     amount_of_templates = 3
-    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+    dentency_map = np.zeros((image.shape[0], image.shape[1]))
 
     # Use different eye templates
     for ii in range(0, amount_of_templates):
 
-        dentency_map += np.uint16(template_matching(image, ("data/templates/Glasses/" + str(ii + 1) + "_Glasses.jpg")))
+        dentency = template_matching(image, ("data/templates/Glasses/" + str(ii + 1) + "_Glasses.jpg"))
+
+        # sum up max-values #
+        d = (dentency > dentency_map)
+        dentency_map[d] = dentency[d]
 
     dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
 
@@ -132,12 +137,16 @@ Output Parameter:       Density image that is generated from the eye matching
 def hair_matching(image):
 
     amount_of_templates = 3
-    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+    dentency_map = np.zeros((image.shape[0], image.shape[1]))
 
     # Use different eye templates
     for ii in range(0, amount_of_templates):
 
-        dentency_map += np.uint16(template_matching(image, ("data/templates/Hair/" + str(ii + 1) + "_Hair.jpg"), 75, 100, 2))
+        dentency = template_matching(image, ("data/templates/Hair/" + str(ii + 1) + "_Hair.jpg"), 75, 100, 2)
+
+        # sum up max-values #
+        d = (dentency > dentency_map)
+        dentency_map[d] = dentency[d]
 
     dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
 
@@ -157,12 +166,16 @@ Output Parameter:       Density image that is generated from the eye matching
 def hairfront_matching(image):
 
     amount_of_templates = 3
-    dentency_map = np.uint16(np.zeros((image.shape[0], image.shape[1])))
+    dentency_map = np.zeros((image.shape[0], image.shape[1]))
 
     # Use different eye templates
     for ii in range(0, amount_of_templates):
 
-        dentency_map += np.uint16(template_matching(image, ("data/templates/HairFront/" + str(ii + 1) + "_HairFront.jpg"), 50, 100, 2))
+        dentency = template_matching(image, ("data/templates/HairFront/" + str(ii + 1) + "_HairFront.jpg"), 75, 100, 2)
+
+        # sum up max-values #
+        d = (dentency > dentency_map)
+        dentency_map[d] = dentency[d]
 
     dentency_map = cv2.normalize(dentency_map, dentency_map, 0, 255, cv2.NORM_MINMAX)
 

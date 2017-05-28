@@ -61,7 +61,7 @@ def find_waldo(image):
     matched_image = \
         1 * np.uint16(matched_image_cap) + \
         1 * np.uint16(template_matched_image_glasses) + \
-        0.1 * np.uint16(template_matched_image_Hair) + \
+        0 * np.uint16(template_matched_image_Hair) + \
         1 * np.uint16(matched_face)
 
     print("Max probability:" + str(np.max(matched_image)))
